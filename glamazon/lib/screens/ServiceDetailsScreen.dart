@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/salon_details_page.dart';
 
 // Salon Model
 class Salon {
@@ -24,43 +25,43 @@ List<Salon> dummySalons = [
   Salon(
     id: '1',
     name: 'Elegant Hair Salon',
-    imageUrl: 'images/image10.jpeg',
+    imageUrl: 'assets/images/image10.jpeg',
     services: ['Haircut', 'Coloring', 'Styling'],
   ),
   Salon(
     id: '2',
     name: 'Glamour Nails',
-    imageUrl: 'images/image8.jpeg',
+    imageUrl: 'assets/images/image8.jpeg',
     services: ['Manicure', 'Pedicure'],
   ),
   Salon(
     id: '3',
     name: 'Luxury Spa',
-    imageUrl: 'images/image3.jpeg',
+    imageUrl: 'assets/images/image3.jpeg',
     services: ['Massage', 'Facial', 'Tattoo'],
   ),
   Salon(
     id: '4',
     name: 'Alberto Unisex',
-    imageUrl: 'images/image4.jpeg',
+    imageUrl: 'assets/images/image4.jpeg',
     services: ['Massage', 'Facial', 'Tattoo', 'Haircut'],
   ),
   Salon(
     id: '5',
     name: 'Mama Kaviri',
-    imageUrl: 'images/image1.jpeg',
+    imageUrl: 'assets/images/image7.jpeg',
     services: ['Hairplaiting', 'Haircut'],
   ),
   Salon(
     id: '6',
     name: 'Hot looks',
-    imageUrl: 'images/image5.jpeg',
+    imageUrl: 'assets/images/image5.jpeg',
     services: ['Makeup', 'Tattoo', 'Manicure'],
   ),
   Salon(
     id: '7',
     name: 'Lady Bird',
-    imageUrl: 'images/image2.jpeg',
+    imageUrl: 'assets/images/image2.jpeg',
     services: ['Massage', 'Facial', 'Tattoo'],
   ),
 ];
@@ -161,7 +162,7 @@ class _SalonListState extends State<SalonList> {
             Container(
               width: double.infinity,
               height: 200,
-              child: Image.network(
+              child: Image.asset(
                 salon.imageUrl,
                 fit: BoxFit.cover,
               ),
@@ -183,7 +184,7 @@ class _SalonListState extends State<SalonList> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SalonDetailPage(salon: salon)),
+                        MaterialPageRoute(builder: (context) => SalonDetailsPage()),
                       );
                     },
                     child: Text('View Details'),
@@ -199,79 +200,30 @@ class _SalonListState extends State<SalonList> {
 }
 
 // Salon Detail Page
-class SalonDetailPage extends StatelessWidget {
-  final Salon salon;
+// class SalonDetailPage extends StatelessWidget {
+//   final Salon salon;
 
-  SalonDetailPage({required this.salon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(salon.name),
-      ),
-      body: Column(
-        children: [
-          Image.network(salon.imageUrl),
-          SizedBox(height: 10),
-          Text(salon.name, style: TextStyle(fontSize: 24)),
-          SizedBox(height: 10),
-          Text('Services: ${salon.services.join(', ')}'),
-        ],
-      ),
-    );
-  }
-}
-
-
-
-
-// import 'package:flutter/material.dart';
-
-// class ServiceDetailsScreen extends StatelessWidget {
-//   final String imagePath;
-//   final String label;
-
-//   const ServiceDetailsScreen({required this.imagePath, required this.label, super.key});
+//   SalonDetailPage({required this.salon});
 
 //   @override
 //   Widget build(BuildContext context) {
 //     return Scaffold(
 //       appBar: AppBar(
-        // title: Text(label),
+//         title: Text(salon.name),
 //       ),
-      // body: Center(
-      //   child: Column(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       ClipRRect(
-      //         borderRadius: BorderRadius.circular(10),
-      //         child: Image.asset(
-      //           imagePath,
-      //           fit: BoxFit.cover,
-      //           width: 300,
-      //           height: 300,
-      //         ),
-      //       ),
-      //       const SizedBox(height: 16.0),
-      //       Text(
-      //         label,
-      //         style: const TextStyle(
-      //           fontSize: 24,
-      //           fontWeight: FontWeight.bold,
-      //         ),
-      //       ),
-      //       const SizedBox(height: 16.0),
-      //       const Text(
-      //         'Detailed information about the service can be added here.',
-      //         textAlign: TextAlign.center,
-      //         style: TextStyle(
-      //           fontSize: 16,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
+//       body: Column(
+//         children: [
+//           Image.asset(salon.imageUrl),
+//           SizedBox(height: 10),
+//           Text(salon.name, style: TextStyle(fontSize: 24)),
+//           SizedBox(height: 10),
+//           Text('Services: ${salon.services.join(', ')}'),
+//         ],
+//       ),
 //     );
 //   }
 // }
+
+
+
+
