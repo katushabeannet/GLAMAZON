@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:glamazon/screens/ServiceDetailsScreen.dart';
+import 'package:glamazon/screens/signup.dart';
 void main() {
   runApp(const MyApp());
 }
@@ -69,7 +70,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CustomerScreen()));
+                      builder: (context) => signUp()));
                 } else if (result == 'add business') {
                   Navigator.push(
                     context,
