@@ -1,3 +1,3 @@
 # GLAMAZON
 
-glamazone app
+glamazone application
