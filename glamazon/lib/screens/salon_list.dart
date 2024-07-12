@@ -24,43 +24,43 @@ List<Salon> dummySalons = [
   Salon(
     id: '1',
     name: 'Elegant Hair Salon',
-    imageUrl: 'images/image10.jpeg',
+    imageUrl: 'assets/images/image10.jpeg',
     services: ['Haircut', 'Coloring', 'Styling'],
   ),
   Salon(
     id: '2',
     name: 'Glamour Nails',
-    imageUrl: 'images/image8.jpeg',
+    imageUrl: 'assets/images/image8.jpeg',
     services: ['Manicure', 'Pedicure'],
   ),
   Salon(
     id: '3',
     name: 'Luxury Spa',
-    imageUrl: 'images/image3.jpeg',
+    imageUrl: 'assets/images/image3.jpeg',
     services: ['Massage', 'Facial', 'Tattoo'],
   ),
   Salon(
     id: '4',
     name: 'Alberto Unisex',
-    imageUrl: 'images/image4.jpeg',
+    imageUrl: 'assets/images/image4.jpeg',
     services: ['Massage', 'Facial', 'Tattoo', 'Haircut'],
   ),
   Salon(
     id: '5',
     name: 'Mama Kaviri',
-    imageUrl: 'images/image1.jpeg',
+    imageUrl: 'assets/images/image1.jpeg',
     services: ['Hairplaiting', 'Haircut'],
   ),
   Salon(
     id: '6',
     name: 'Hot looks',
-    imageUrl: 'images/image5.jpeg',
+    imageUrl: 'assets/images/image5.jpeg',
     services: ['Makeup', 'Tattoo', 'Manicure'],
   ),
   Salon(
     id: '7',
     name: 'Lady Bird',
-    imageUrl: 'images/image2.jpeg',
+    imageUrl: 'assets/images/image2.jpeg',
     services: ['Massage', 'Facial', 'Tattoo'],
   ),
 ];
@@ -224,54 +224,3 @@ class SalonDetailPage extends StatelessWidget {
 }
 
 
-
-
-// import 'package:flutter/material.dart';
-
-// class ServiceDetailsScreen extends StatelessWidget {
-//   final String imagePath;
-//   final String label;
-
-//   const ServiceDetailsScreen({required this.imagePath, required this.label, super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-        // title: Text(label),
-//       ),
-      // body: Center(
-      //   child: Column(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       ClipRRect(
-      //         borderRadius: BorderRadius.circular(10),
-      //         child: Image.asset(
-      //           imagePath,
-      //           fit: BoxFit.cover,
-      //           width: 300,
-      //           height: 300,
-      //         ),
-      //       ),
-      //       const SizedBox(height: 16.0),
-      //       Text(
-      //         label,
-      //         style: const TextStyle(
-      //           fontSize: 24,
-      //           fontWeight: FontWeight.bold,
-      //         ),
-      //       ),
-      //       const SizedBox(height: 16.0),
-      //       const Text(
-      //         'Detailed information about the service can be added here.',
-      //         textAlign: TextAlign.center,
-      //         style: TextStyle(
-      //           fontSize: 16,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
-//     );
-//   }
-// }

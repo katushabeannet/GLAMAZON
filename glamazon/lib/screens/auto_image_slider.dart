@@ -19,10 +19,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/customer': (context) => const CustomerScreen(),
         '/addBusiness': (context) => const AddBusinessScreen(),
-        '/serviceDetails': (context) => ServiceDetailsScreen(
-              imagePath: '',
-              label: '',
-            ),
+        '/serviceDetails': (context) => SalonList()
       },
     );
   }
@@ -202,10 +199,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => ServiceDetailsScreen(
-                imagePath: imagePath,
-                label: label,
-              ),
+              builder: (context) => SalonList()
             ),
           );
         },
