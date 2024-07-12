@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/auto_image_slider.dart';
 
 class Splash extends StatefulWidget {
   const Splash({Key? key}) : super(key: key);
