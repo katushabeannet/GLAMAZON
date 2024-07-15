@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
 
 class Splash extends StatefulWidget {
-  const Splash({Key? key}) : super(key: key);
+  const Splash({super.key});
 
   @override
   _SplashState createState() => _SplashState();
@@ -30,7 +30,7 @@ class _SplashState extends State<Splash> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: 100,
               width: 100,
               // color: Colors.amber,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:glamazon/screens/ServiceDetailsScreen.dart';
 import 'package:glamazon/screens/signup.dart';
+
 void main() {
   runApp(const MyApp());
 }
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/customer': (context) => const CustomerScreen(),
         '/addBusiness': (context) => const AddBusinessScreen(),
-        '/serviceDetails': (context) => SalonList()
+        '/serviceDetails': (context) => const SalonList(),
       },
     );
   }
@@ -51,7 +52,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 250, 227, 197),
+      backgroundColor: Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -69,13 +70,13 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 if (result == 'as a customer') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => signUp()));
+                    MaterialPageRoute(builder: (context) => const signUp()),
+                  );
                 } else if (result == 'add business') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => AddBusinessScreen()));
+                    MaterialPageRoute(builder: (context) => const AddBusinessScreen()),
+                  );
                 }
               },
               itemBuilder: (BuildContext context) => [
@@ -88,6 +89,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
                   child: Text('add business'),
                 ),
               ],
+              color: const Color.fromARGB(255, 161, 115, 77), // Background color of the drop-down menu
               child: const Text('Join us'),
             ),
           ],
@@ -100,14 +102,28 @@ class _MyImageSliderState extends State<MyImageSlider> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text(
-                'Home',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF882D17), // Light shade of sienna
-                ),
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Image(
+                    image: AssetImage('assets/images/spa.jpg'), // Replace with your logo asset path
+                    height: 50,
+                  ),
+                  Column(
+                    children: [
+                      Icon(Icons.calendar_today, color: Color(0xFF882D17), size: 30),
+                      Text(
+                        'Appointments',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF882D17), // Light shade of sienna
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
             Container(
@@ -199,9 +215,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (context) => SalonList()
-            ),
+            MaterialPageRoute(builder: (context) => const SalonList()),
           );
         },
         child: Column(
@@ -209,7 +223,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
             ClipRRect(
               borderRadius: BorderRadius.circular(10),
               child: Container(
-                height: 100,
+                height: 120, // Increased height for larger columns
                 decoration: BoxDecoration(
                   image: DecorationImage(
                     image: AssetImage(imagePath),
@@ -264,51 +278,3 @@ class AddBusinessScreen extends StatelessWidget {
     );
   }
 }
-
-// class ServiceDetailsScreen extends StatelessWidget {
-//   final String imagePath;
-//   final String label;
-
-//   const ServiceDetailsScreen({required this.imagePath, required this.label, super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text(label),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             ClipRRect(
-//               borderRadius: BorderRadius.circular(10),
-//               child: Image.asset(
-//                 imagePath,
-//                 fit: BoxFit.cover,
-//                 width: 300,
-//                 height: 300,
-//               ),
-//             ),
-//             const SizedBox(height: 16.0),
-//             Text(
-//               label,
-//               style: const TextStyle(
-//                 fontSize: 24,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             const SizedBox(height: 16.0),
-//             const Text(
-//               'Detailed information about the service can be added here.',
-//               textAlign: TextAlign.center,
-//               style: TextStyle(
-//                 fontSize: 16,
-//               ),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }

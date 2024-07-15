@@ -68,6 +68,8 @@ List<Salon> dummySalons = [
 
 // Salon List Screen
 class SalonList extends StatefulWidget {
+  const SalonList({super.key});
+
   @override
   _SalonListState createState() => _SalonListState();
 }
@@ -87,9 +89,9 @@ class _SalonListState extends State<SalonList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Salons'),
+        title: const Text('Salons'),
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(50.0),
+          preferredSize: const Size.fromHeight(50.0),
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -110,11 +112,11 @@ class _SalonListState extends State<SalonList> {
         future: futureSalons,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return Center(child: Text('No salons available'));
+            return const Center(child: Text('No salons available'));
           }
 
           List<Salon> salons = snapshot.data!;
@@ -159,7 +161,7 @@ class _SalonListState extends State<SalonList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            SizedBox(
               width: double.infinity,
               height: 200,
               child: Image.asset(
@@ -174,7 +176,7 @@ class _SalonListState extends State<SalonList> {
                   Expanded(
                     child: Text(
                       salon.name,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -184,10 +186,10 @@ class _SalonListState extends State<SalonList> {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SalonDetailsPage()),
+                        MaterialPageRoute(builder: (context) =>  SalonDetailsPage()),
                       );
                     },
-                    child: Text('View Details'),
+                    child: const Text('View Details'),
                   ),
                 ],
               ),

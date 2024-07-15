@@ -27,12 +27,14 @@ class ChatRoomPage extends StatelessWidget {
     ),
   ];
 
+   ChatRoomPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Chat Room'),
-        backgroundColor: Color(0xFF6A1B1A), // Darker Sienna shade
+        title: const Text('Chat Room'),
+        backgroundColor: const Color(0xFF6A1B1A), // Darker Sienna shade
       ),
       body: Column(
         children: [
@@ -55,17 +57,17 @@ class ChatRoomPage extends StatelessWidget {
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(20.0),
                       ),
-                      contentPadding: EdgeInsets.symmetric(horizontal: 20.0),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 20.0),
                     ),
                   ),
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     // Add send message functionality
                   },
-                  color: Color(0xFF6A1B1A), // Darker Sienna shade
+                  color: const Color(0xFF6A1B1A), // Darker Sienna shade
                 ),
               ],
             ),
@@ -91,14 +93,14 @@ class Message {
 class MessageBubble extends StatelessWidget {
   final Message message;
 
-  const MessageBubble({Key? key, required this.message}) : super(key: key);
+  const MessageBubble({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
     return Align(
       alignment: message.isOwner ? Alignment.centerLeft : Alignment.centerRight,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -106,14 +108,14 @@ class MessageBubble extends StatelessWidget {
               CircleAvatar(
                 backgroundImage: AssetImage(message.profileImage),
               ),
-            if (message.isOwner) SizedBox(width: 10),
+            if (message.isOwner) const SizedBox(width: 10),
             Container(
-              padding: EdgeInsets.all(10),
-              constraints: BoxConstraints(maxWidth: 250),
+              padding: const EdgeInsets.all(10),
+              constraints: const BoxConstraints(maxWidth: 250),
               decoration: BoxDecoration(
                 color: message.isOwner
                     ? Colors.grey[300]
-                    : Color(0xFFAA4A30), // Grey for owner, Sienna for user
+                    : const Color(0xFFAA4A30), // Grey for owner, Sienna for user
                 borderRadius: BorderRadius.circular(15),
               ),
               child: Text(
@@ -123,7 +125,7 @@ class MessageBubble extends StatelessWidget {
                 ),
               ),
             ),
-            if (!message.isOwner) SizedBox(width: 10),
+            if (!message.isOwner) const SizedBox(width: 10),
             if (!message.isOwner)
               CircleAvatar(
                 backgroundImage: AssetImage(message.profileImage),

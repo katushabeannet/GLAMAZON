@@ -5,15 +5,15 @@ import 'package:glamazon/screens/signup.dart';
 import 'package:glamazon/utils/colors.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({Key? key}) : super(key: key);
+  const SignIn({super.key});
 
   @override
   State<SignIn> createState() => _SignInState();
 }
 
 class _SignInState extends State<SignIn> {
-  TextEditingController _emailTextController = TextEditingController();
-  TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -55,7 +55,7 @@ class _SignInState extends State<SignIn> {
                 signInSignUpButton(context, true, () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyImageSlider()),
+                    MaterialPageRoute(builder: (context) => const MyImageSlider()),
                   );
                 }),
                 signUpOption(),
@@ -82,7 +82,7 @@ class _SignInState extends State<SignIn> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => signUp()),
+              MaterialPageRoute(builder: (context) => const signUp()),
             );
           },
           child: const Text(
