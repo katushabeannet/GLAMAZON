@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/salon_details_page.dart';
 
 // Salon Model
 class Salon {
@@ -200,29 +201,6 @@ class _SalonListState extends State<SalonList> {
   }
 }
 
-// Salon Detail Page
-class SalonDetailPage extends StatelessWidget {
-  final Salon salon;
 
-  const SalonDetailPage({super.key, required this.salon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(salon.name),
-      ),
-      body: Column(
-        children: [
-          Image.network(salon.imageUrl),
-          const SizedBox(height: 10),
-          Text(salon.name, style: const TextStyle(fontSize: 24)),
-          const SizedBox(height: 10),
-          Text('Services: ${salon.services.join(', ')}'),
-        ],
-      ),
-    );
-  }
-}
 
 

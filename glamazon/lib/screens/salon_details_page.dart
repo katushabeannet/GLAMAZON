@@ -1,30 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+// import 'package:image_picker/image_picker.dart';
+// import 'dart:io';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/chat_room_page.dart';
 
-class SalonDetailsPage extends StatefulWidget {
-  const SalonDetailsPage({super.key});
+import 'salon_list.dart';
+// import 'package:glamazon/chat_room_page.dart';
+// import 'package:glamazon/home_page.dart';
+// import 'booking_page.dart';
+// import 'chat_room_page.dart';
 
-  @override
-  _SalonDetailsPageState createState() => _SalonDetailsPageState();
-}
 
-class _SalonDetailsPageState extends State<SalonDetailsPage> {
-  final List<Map<String, String>> galleryItems = [];
 
-  Future<void> _pickMedia() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? media = await picker.pickImage(source: ImageSource.gallery);
+class SalonDetailPage extends StatelessWidget {
+  final Salon salon;
 
-    if (media != null) {
-      setState(() {
-        galleryItems.add({'imagePath': media.path, 'name': 'New Media'});
-      });
-    }
-  }
+  final List<Map<String, String>> galleryItems = [
+    {'imagePath': 'assets/images/female_0.jpg', 'name': 'Glamorous Updo'},
+    {'imagePath': 'assets/images/female_1.jpg', 'name': 'Elegant Braids'},
+    {'imagePath': 'assets/images/female_2.jpg', 'name': 'Classic Curls'},
+    {'imagePath': 'assets/images/pexels.jpg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/john.jpg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/pexels.jpg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/cottonbro.jpg', 'name': 'Sleek Bob'},
+    // Add more images and names as needed
+  ];
+
+  SalonDetailPage({required this.salon});
 
   @override
   Widget build(BuildContext context) {
@@ -33,11 +36,11 @@ class _SalonDetailsPageState extends State<SalonDetailsPage> {
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text('Glamazon', style: TextStyle(color: Colors.white)),
-            const Icon(Icons.person, color: Colors.white),
+            Text('Glamazon', style: TextStyle(color: Colors.white)),
+            Icon(Icons.person, color: Colors.white),
           ],
         ),
-        backgroundColor: const Color(0xFF882D17), // Dark Sienna as base color
+        backgroundColor: Color(0xFF882D17), // Dark Sienna as base color
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -47,73 +50,60 @@ class _SalonDetailsPageState extends State<SalonDetailsPage> {
             children: [
               Row(
                 children: [
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage(
-                        'assets/images/spa.jpeg'), // Replace with your image asset
+                    backgroundImage: NetworkImage(salon.imageUrl),
                   ),
-                  const SizedBox(width: 20),
+                  SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Salon Name',
+                      Text(
+                        salon.name,
                         style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       ElevatedButton(
                         onPressed: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const BookingPage()),
+                                builder: (context) => BookingPage()),
                           );
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFAA4A30), // Sienna color
+                          backgroundColor: Color(0xFFAA4A30), // Sienna color
                         ),
-                        child: const Text('Book Now',
-                            style: TextStyle(color: Colors.white)),
+                        child: Text('Book Now',
+                        style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Gallery',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  GestureDetector(
-                    onTap: _pickMedia,
-                    child: Column(
-                      children: [
-                        const Icon(Icons.add_a_photo, color: Color(0xFFAA4A30)),
-                        const SizedBox(height: 4),
-                        const Text(
-                          'Add a post',
-                          style: TextStyle(color: Color(0xFFAA4A30)),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+              SizedBox(height: 20),
+              // Image.network(salon.imageUrl),
+              // SizedBox(height: 10),
+              // Text(salon.name, style: TextStyle(fontSize: 24)),
+              // SizedBox(height: 10),
+              Text('Services: ${salon.services.join(', ')}'),
+              SizedBox(height: 20),
+              Text(
+                'Gallery',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               buildGallery(galleryItems),
             ],
           ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFFAA4A30),
-        items: const [
+        backgroundColor: Color(0xFFAA4A30),
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -131,12 +121,12 @@ class _SalonDetailsPageState extends State<SalonDetailsPage> {
           if (index == 0) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const MyImageSlider()),
+              MaterialPageRoute(builder: (context) => MyImageSlider()),
             );
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  ChatRoomPage()),
+              MaterialPageRoute(builder: (context) => ChatRoomPage()),
             );
           }
         },
@@ -153,38 +143,20 @@ class _SalonDetailsPageState extends State<SalonDetailsPage> {
           child: Column(
             children: [
               Expanded(
-                child: item['imagePath']!.endsWith('.mp4')
-                    ? AspectRatio(
-                        aspectRatio: 16 / 9,
-                        child: VideoWidget(videoFile: File(item['imagePath']!)),
-                      )
-                    : Image.file(
-                        File(item['imagePath']!),
-                        fit: BoxFit.cover,
-                      ),
+                child: Image.asset(
+                  item['imagePath']!,
+                  fit: BoxFit.cover,
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Text(item['name']!,
-                    style: const TextStyle(fontWeight: FontWeight.bold)),
+                    style: TextStyle(fontWeight: FontWeight.bold)),
               ),
             ],
           ),
         );
       }).toList(),
     );
-  }
-}
-
-class VideoWidget extends StatelessWidget {
-  final File videoFile;
-
-  const VideoWidget({required this.videoFile, Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Add your video player implementation here
-    // For example, using the video_player package
-    return Container();
   }
 }

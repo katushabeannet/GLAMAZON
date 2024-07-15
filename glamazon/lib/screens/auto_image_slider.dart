@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:glamazon/screens/ServiceDetailsScreen.dart';
+import 'package:glamazon/screens/salon_list.dart';
 import 'package:glamazon/screens/signup.dart';
 
 void main() {

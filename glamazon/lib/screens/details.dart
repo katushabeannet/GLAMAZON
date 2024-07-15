@@ -5,14 +5,14 @@ import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/chat_room_page.dart';
 
-class SalonDetailsPage extends StatefulWidget {
-  const SalonDetailsPage({super.key});
+class SalonDetails extends StatefulWidget {
+  const SalonDetails({super.key});
 
   @override
   _SalonDetailsPageState createState() => _SalonDetailsPageState();
 }
 
-class _SalonDetailsPageState extends State<SalonDetailsPage> {
+class _SalonDetailsPageState extends State<SalonDetails> {
   final List<Map<String, String>> galleryItems = [];
 
   Future<void> _pickMedia() async {
