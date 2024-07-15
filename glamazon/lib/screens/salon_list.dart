@@ -164,7 +164,7 @@ class _SalonListState extends State<SalonList> {
             SizedBox(
               width: double.infinity,
               height: 200,
-              child: Image.network(
+              child: Image.asset(
                 salon.imageUrl,
                 fit: BoxFit.cover,
               ),

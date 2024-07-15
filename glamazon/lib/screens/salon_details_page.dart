@@ -17,13 +17,13 @@ class SalonDetailPage extends StatelessWidget {
   final Salon salon;
 
   final List<Map<String, String>> galleryItems = [
-    {'imagePath': 'assets/images/female_0.jpg', 'name': 'Glamorous Updo'},
-    {'imagePath': 'assets/images/female_1.jpg', 'name': 'Elegant Braids'},
-    {'imagePath': 'assets/images/female_2.jpg', 'name': 'Classic Curls'},
-    {'imagePath': 'assets/images/pexels.jpg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/john.jpg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/pexels.jpg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/cottonbro.jpg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/haircut.jpeg', 'name': 'Glamorous Updo'},
+    {'imagePath': 'assets/images/makeup1.jpeg', 'name': 'Elegant Braids'},
+    {'imagePath': 'assets/images/images (1).jpeg', 'name': 'Classic Curls'},
+    {'imagePath': 'assets/images/images (2).jpeg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/images (3).jpeg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/images (8).jpeg', 'name': 'Sleek Bob'},
+    {'imagePath': 'assets/images/image03.jpg', 'name': 'Sleek Bob'},
     // Add more images and names as needed
   ];
 
@@ -52,7 +52,7 @@ class SalonDetailPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: NetworkImage(salon.imageUrl),
+                    backgroundImage: AssetImage(salon.imageUrl),
                   ),
                   SizedBox(width: 20),
                   Column(
