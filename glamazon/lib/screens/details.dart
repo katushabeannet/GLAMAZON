@@ -69,7 +69,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => const BookingPage()),
+                                builder: (context) =>  BookingPage(salonId: '', salonName: '',)),
                           );
                         },
                         style: ElevatedButton.styleFrom(

@@ -71,7 +71,7 @@ class SalonDetailPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => BookingPage()),
+                                builder: (context) => BookingPage(salonId: '', salonName: '',)),
                           );
                         },
                         style: ElevatedButton.styleFrom(
