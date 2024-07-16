@@ -36,7 +36,6 @@ class ProfilePage extends StatelessWidget {
                 context,
                 '/edit-profile',
               );
-
               if (updatedData != null) {
                 // Cast the result to Map<String, dynamic>
                 final data = updatedData as Map<String, dynamic>;
