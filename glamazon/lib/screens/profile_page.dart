@@ -20,7 +20,6 @@ class ProfilePage extends StatelessWidget {
     required this.email,
     required this.websiteUrl,
     required this.aboutUs,
-    required Map<String, dynamic> arguments,
   });
 
   @override
@@ -29,6 +28,39 @@ class ProfilePage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('My Profile'),
         backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit, color: Colors.white),
+            onPressed: () async {
+              final updatedData = await Navigator.pushNamed(
+                context,
+                '/edit-profile',
+              );
+
+              if (updatedData != null) {
+                // Cast the result to Map<String, dynamic>
+                final data = updatedData as Map<String, dynamic>;
+
+                // Update the state with new data
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(
+                      profileImageUrl: data['profileImageUrl'],
+                      salonName: data['salonName'],
+                      location: data['location'],
+                      ownerName: data['ownerName'],
+                      contact: data['contact'],
+                      email: data['email'],
+                      websiteUrl: data['websiteUrl'],
+                      aboutUs: data['aboutUs'],
+                    ),
+                  ),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

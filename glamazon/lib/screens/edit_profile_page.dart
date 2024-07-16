@@ -25,7 +25,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
     _salonNameController.text = 'Glamazon Salon'; // Example default data
-    _ownerNameController.text = 'Alinda Tracy';
+    _ownerNameController.text = 'Enter Your Name';
     _contactController.text = '123-456-7890';
     _emailController.text = 'alinda.tracy@example.com';
     _locationController.text = '123 Beauty Street, Glamour City';
@@ -100,7 +100,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                     radius: 60,
                     backgroundImage: _profileImage != null
                         ? FileImage(_profileImage!)
-                        : const AssetImage('assets/images/default_profile.jpg')
+                        : const AssetImage('assets/images/default.png')
                             as ImageProvider,
                   ),
                   Positioned(
@@ -168,10 +168,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                     ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState?.validate() ?? false) {
-                          Navigator.pushNamed(
+                          Navigator.pop(
                             context,
-                            '/profile',
-                            arguments: {
+                            {
                               'profileImageUrl': _profileImage?.path ??
                                   'https://example.com/profile.jpg',
                               'salonName': _salonNameController.text,

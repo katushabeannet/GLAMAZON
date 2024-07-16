@@ -52,7 +52,6 @@ class SalonDetailPage extends StatelessWidget {
                       email: '',
                       websiteUrl: '',
                       aboutUs: '',
-                      arguments: {},
                     ),
                   ),
                 );
