@@ -4,14 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/chat_room_page.dart';
+import 'package:glamazon/screens/profile_page.dart';
 
 import 'salon_list.dart';
 // import 'package:glamazon/chat_room_page.dart';
 // import 'package:glamazon/home_page.dart';
 // import 'booking_page.dart';
 // import 'chat_room_page.dart';
-
-
 
 class SalonDetailPage extends StatelessWidget {
   final Salon salon;
@@ -37,7 +36,28 @@ class SalonDetailPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Glamazon', style: TextStyle(color: Colors.white)),
-            Icon(Icons.person, color: Colors.white),
+            IconButton(
+              icon: Icon(Icons.person, color: Colors.white),
+              onPressed: () {
+                // Navigate to the ProfilePage
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ProfilePage(
+                      profileImageUrl: '',
+                      salonName: '',
+                      location: '',
+                      ownerName: '',
+                      contact: '',
+                      email: '',
+                      websiteUrl: '',
+                      aboutUs: '',
+                      arguments: {},
+                    ),
+                  ),
+                );
+              },
+            ),
           ],
         ),
         backgroundColor: Color(0xFF882D17), // Dark Sienna as base color
@@ -71,14 +91,17 @@ class SalonDetailPage extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => BookingPage(salonId: '', salonName: '',)),
+                                builder: (context) => BookingPage(
+                                      salonId: '',
+                                      salonName: '',
+                                    )),
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color(0xFFAA4A30), // Sienna color
                         ),
                         child: Text('Book Now',
-                        style: TextStyle(color: Colors.white)),
+                            style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
