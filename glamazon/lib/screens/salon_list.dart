@@ -49,7 +49,7 @@ List<Salon> dummySalons = [
   Salon(
     id: '5',
     name: 'Mama Kaviri',
-    imageUrl: 'assets/images/image1.jpeg',
+    imageUrl: 'assets/images/image2.jpeg',
     services: ['Hairplaiting', 'Haircut'],
   ),
   Salon(
@@ -97,11 +97,12 @@ class _SalonListState extends State<SalonList> {
             child: Row(
               children: [
                 _buildServiceButton('Haircut'),
-                _buildServiceButton('Manicure'),
-                _buildServiceButton('Massage'),
+                _buildServiceButton('Nails'),
+                _buildServiceButton('Spa'),
                 _buildServiceButton('Tattoo'),
-                _buildServiceButton('Hairplaiting'),
-                _buildServiceButton('Makeup'),
+                _buildServiceButton('HairStyling'),
+                _buildServiceButton('Makeup and Facial'),
+                _buildServiceButton('Piercings'),
                 // Add more buttons as needed
               ],
             ),
