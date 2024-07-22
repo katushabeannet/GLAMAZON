@@ -3,21 +3,21 @@ import 'package:intl/intl.dart';
 
 // Dummy Data for Services, Durations, and Bookings
 Map<String, Duration> servicesWithDurations = {
-  'Haircut': Duration(hours: 1),
-  'Manicure': Duration(hours: 1, minutes: 30),
-  'Pedicure': Duration(hours: 1, minutes: 15),
-  'Massage': Duration(hours: 2),
+  'Haircut': const Duration(hours: 1),
+  'Manicure': const Duration(hours: 1, minutes: 30),
+  'Pedicure': const Duration(hours: 1, minutes: 15),
+  'Massage': const Duration(hours: 2),
 };
 
 Map<String, List<Map<String, DateTime>>> salonBookings = {
   'Salon1': [
     {
-      'start': DateTime.now().add(Duration(hours: 2)),
-      'end': DateTime.now().add(Duration(hours: 3)),
+      'start': DateTime.now().add(const Duration(hours: 2)),
+      'end': DateTime.now().add(const Duration(hours: 3)),
     },
     {
-      'start': DateTime.now().add(Duration(hours: 4)),
-      'end': DateTime.now().add(Duration(hours: 5)),
+      'start': DateTime.now().add(const Duration(hours: 4)),
+      'end': DateTime.now().add(const Duration(hours: 5)),
     },
   ],
 };
@@ -51,7 +51,7 @@ class _BookingPageState extends State<BookingPage> {
           children: [
             DropdownButtonFormField<String>(
               value: selectedService,
-              hint: Text('Select a Service'),
+              hint: const Text('Select a Service'),
               items: servicesWithDurations.keys.map((String service) {
                 return DropdownMenuItem<String>(
                   value: service,
@@ -65,37 +65,37 @@ class _BookingPageState extends State<BookingPage> {
                   selectedEndTime = null; // Reset the end time when a new service is picked
                 });
               },
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ListTile(
               title: Text(selectedDate == null
                   ? 'Select Date'
                   : DateFormat('yyyy-MM-dd').format(selectedDate!)),
-              trailing: Icon(Icons.calendar_today),
+              trailing: const Icon(Icons.calendar_today),
               onTap: _selectDate,
             ),
             if (selectedDate != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Taken Slots:',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   ..._getTakenSlots().map((slot) => Text(
                       '${DateFormat('HH:mm').format(slot['start']!)} - ${DateFormat('HH:mm').format(slot['end']!)}')).toList(),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ListTile(
                     title: Text(selectedStartTime == null
                         ? 'Select Start Time'
                         : DateFormat('kk:mm').format(selectedStartTime!)),
-                    trailing: Icon(Icons.access_time),
+                    trailing: const Icon(Icons.access_time),
                     onTap: _selectTime,
                   ),
                   if (selectedStartTime != null)
@@ -103,19 +103,19 @@ class _BookingPageState extends State<BookingPage> {
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
                         'End Time: ${DateFormat('kk:mm').format(selectedEndTime!)}',
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                 ],
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _bookAppointment,
-              child: Text('Confirm Appointment'),
+              child: const Text('Confirm Appointment'),
             ),
             if (!isSlotAvailable)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
+              const Padding(
+                padding: EdgeInsets.only(top: 20),
                 child: Text(
                   'Selected time slot is already taken. Please choose another time.',
                   style: TextStyle(color: Colors.red),
@@ -195,7 +195,7 @@ class _BookingPageState extends State<BookingPage> {
           salonBookings[widget.salonId] = bookings;
         });
         // Navigate to a success page or show a success message
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text('Appointment booked successfully!'),
         ));
       }

@@ -33,6 +33,7 @@ dependencies:
   share_plus:  ^9.0.0 #for sharing the app
   url_launcher: ^6.3.0 #for launching URLs and email
   fluttertoast: ^8.2.6 #for showing simple messages
+  http: ^1.2.2
   flutter_localizations:
     sdk: flutter
 

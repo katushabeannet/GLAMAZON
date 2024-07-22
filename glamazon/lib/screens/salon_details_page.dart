@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
-// import 'package:image_picker/image_picker.dart';
-// import 'dart:io';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/chat_room_page.dart';
 import 'package:glamazon/screens/profile_page.dart';
+import 'package:glamazon/screens/rating_page.dart';
+ // Ensure proper import
 
 import 'salon_list.dart';
-// import 'package:glamazon/chat_room_page.dart';
-// import 'package:glamazon/home_page.dart';
-// import 'booking_page.dart';
-// import 'chat_room_page.dart';
 
-class SalonDetailPage extends StatelessWidget {
+class SalonDetailPage extends StatefulWidget {
   final Salon salon;
+
+  SalonDetailPage({required this.salon});
+
+  @override
+  _SalonDetailPageState createState() => _SalonDetailPageState();
+}
+
+class _SalonDetailPageState extends State<SalonDetailPage> {
+  List<Map<String, dynamic>> ratings = [];
 
   final List<Map<String, String>> galleryItems = [
     {'imagePath': 'assets/images/haircut.jpeg', 'name': 'Glamorous Updo'},
@@ -25,8 +30,6 @@ class SalonDetailPage extends StatelessWidget {
     {'imagePath': 'assets/images/image03.jpg', 'name': 'Sleek Bob'},
     // Add more images and names as needed
   ];
-
-  SalonDetailPage({required this.salon});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class SalonDetailPage extends StatelessWidget {
               onPressed: () {
                 // Navigate to the ProfilePage
                 Navigator.push(
-                  context,
+                   context,
                   MaterialPageRoute(
                     builder: (context) => ProfilePage(
                       profileImageUrl: '',
@@ -71,47 +74,70 @@ class SalonDetailPage extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage(salon.imageUrl),
+                    backgroundImage: AssetImage(widget.salon.imageUrl),
                   ),
                   SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        salon.name,
+                        widget.salon.name,
                         style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),
                       ),
                       SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => BookingPage(
-                                      salonId: '',
-                                      salonName: '',
-                                    )),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFAA4A30), // Sienna color
-                        ),
-                        child: Text('Book Now',
-                            style: TextStyle(color: Colors.white)),
+                      Row(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => BookingPage(
+                                          salonId: '',
+                                          salonName: '',
+                                        )),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFAA4A30), // Sienna color
+                            ),
+                            child: Text('Book Now',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                          SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => RatingsPage(
+                                          salonId: '',
+                                          
+                                        )),
+                              );
+                              if (result != null) {
+                                setState(() {
+                                  ratings.add(result);
+                                });
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFFAA4A30), // Sienna color
+                            ),
+                            child: Text('Rate Us',
+                                style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ],
               ),
               SizedBox(height: 20),
-              // Image.network(salon.imageUrl),
-              // SizedBox(height: 10),
-              // Text(salon.name, style: TextStyle(fontSize: 24)),
-              // SizedBox(height: 10),
-              Text('Services: ${salon.services.join(', ')}'),
+              Text('Services: ${widget.salon.services.join(', ')}'),
               SizedBox(height: 20),
               Text(
                 'Gallery',
@@ -119,6 +145,12 @@ class SalonDetailPage extends StatelessWidget {
               ),
               SizedBox(height: 10),
               buildGallery(galleryItems),
+              SizedBox(height: 20),
+              Text(
+                'Ratings',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              buildRatingsSection(),
             ],
           ),
         ),
@@ -177,6 +209,21 @@ class SalonDetailPage extends StatelessWidget {
               ),
             ],
           ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildRatingsSection() {
+    if (ratings.isEmpty) {
+      return Text('No ratings yet.');
+    }
+    return Column(
+      children: ratings.map((rating) {
+        return ListTile(
+          leading: Icon(Icons.star, color: Colors.amber),
+          title: Text('Rating: ${rating['rating']}'),
+          subtitle: Text(rating['comment'] ?? 'No comment provided'),
         );
       }).toList(),
     );
