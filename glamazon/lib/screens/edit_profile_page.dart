@@ -101,7 +101,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                     backgroundImage: _profileImage != null
                         ? FileImage(_profileImage!)
                         : const AssetImage('assets/images/default.png')
-                            as ImageProvider,
+                            as ImageProvider<Object>,
                   ),
                   Positioned(
                     bottom: 0,
