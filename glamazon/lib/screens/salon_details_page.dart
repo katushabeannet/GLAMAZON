@@ -47,7 +47,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => ProfilePage(
+                    builder: (context) => const ProfilePage(
                       profileImageUrl: '',
                       salonName: '',
                       location: '',
@@ -83,7 +83,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                     children: [
                       Text(
                         widget.salon.name,
-                        style: TextStyle(
+                        style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),

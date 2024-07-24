@@ -38,15 +38,15 @@ class MyImageSlider extends StatefulWidget {
 
 class _MyImageSliderState extends State<MyImageSlider> {
   final myItems = [
-    'assets/images/spa1.jpg',
-    'assets/images/images (2).jpeg',
-    'assets/images/haircut.jpeg',
-    'assets/images/peircing1.webp',
-    'assets/images/tattoo 1.jpg',
-    'assets/images/images (3).jpeg',
-    'assets/images/image03.jpg',
-    'assets/images/spa.jpeg',
-    'assets/images/images (12).jpeg',
+    'assets/images/spa/spa1.jpg',
+    'assets/images/nails/images (2).jpeg',
+    'assets/images/hair/haircut.jpeg',
+    'assets/images/piercing/peircing1.webp',
+    'assets/images/tatoo/tattoo 1.jpg',
+    'assets/images/nails/images (3).jpeg',
+    'assets/images/makeup/image03.jpg',
+    'assets/images/spa/spa.jpeg',
+    'assets/images/hair/images (12).jpeg',
   ];
 
   int myCurrentIndex = 0;
@@ -181,25 +181,25 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 children: [
                   Row(
                     children: [
-                      _buildServiceItem(context, 'assets/images/images (12).jpeg', 'Hair styling and Cuts'),
+                      _buildServiceItem(context, 'assets/images/images (8).jpeg', 'Hair styling and Cuts'),
                       const SizedBox(width: 16.0),
-                      _buildServiceItem(context, 'assets/images/images (2).jpeg', 'Nails'),
+                      _buildServiceItem(context, 'assets/images/nails/image02.jpg', 'Nails'),
                     ],
                   ),
                   const SizedBox(height: 16.0),
                   Row(
                     children: [
-                      _buildServiceItem(context, 'assets/images/spa.jpg', 'Spa'),
+                      _buildServiceItem(context, 'assets/images/spa/spa.jpg', 'Spa'),
                       const SizedBox(width: 16.0),
-                      _buildServiceItem(context, 'assets/images/tatto.jpeg', 'Tattoos'),
+                      _buildServiceItem(context, 'assets/images/tatto/image14.jpeg', 'Tattoos'),
                     ],
                   ),
                   const SizedBox(height: 16.0),
                   Row(
                     children: [
-                      _buildServiceItem(context, 'assets/images/makeup1.jpeg', 'Makeup and Facial'),
+                      _buildServiceItem(context, 'assets/images/makeup/makeup2.jpeg', 'Makeup and Facial'),
                       const SizedBox(width: 16.0),
-                      _buildServiceItem(context, 'assets/images/piercing 2.jpg', 'Piercing'),
+                      _buildServiceItem(context, 'assets/images/piercing/piercing 2.jpg', 'Piercing'),
                     ],
                   ),
                 ],
