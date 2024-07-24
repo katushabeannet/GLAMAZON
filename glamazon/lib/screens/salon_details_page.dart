@@ -189,31 +189,35 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
   }
 
   Widget buildGallery(List<Map<String, String>> galleryItems) {
-    return SingleChildScrollView(
-      child: GridView.count(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(),
-        crossAxisCount: 2,
-        children: galleryItems.map((item) {
-          return Card(
-            child: Column(
-              children: [
-                Expanded(
+    return GridView.count(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      children: galleryItems.map((item) {
+        return Card(
+          child: Column(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
                   child: Image.asset(
                     item['imagePath']!,
-                    fit: BoxFit.fill,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(item['name']!,
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  item['name']!,
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 

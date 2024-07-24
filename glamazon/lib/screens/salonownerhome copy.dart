@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/details.dart';
+import 'package:glamazon/screens/profile_page.dart';
 import 'package:glamazon/screens/settings_owner.dart';
 import 'appointments_page.dart';
 import 'chat-page.dart';
@@ -68,7 +69,21 @@ class SalonOwnerHome extends StatelessWidget {
                     Icons.person,
                     'My Profile',
                     () {
-                      // Navigate to My Profile page
+                       Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(
+                            profileImageUrl: '', 
+                            salonName: '', 
+                            location: '', 
+                            ownerName: '', 
+                            contact: '', 
+                            email: '', 
+                            websiteUrl: '', 
+                            aboutUs: '',
+                          ),
+                        ),
+                      );
                     },
                   ),
                   _buildGridButton(
