@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/reschedule_page.dart';
 import 'package:intl/intl.dart';
 
-// Dummy Data for Services, Durations, and Bookings
 Map<String, Duration> servicesWithDurations = {
   'Haircut': const Duration(hours: 1),
   'Manicure': const Duration(hours: 1, minutes: 30),
@@ -9,15 +9,17 @@ Map<String, Duration> servicesWithDurations = {
   'Massage': const Duration(hours: 2),
 };
 
-Map<String, List<Map<String, DateTime>>> salonBookings = {
+Map<String, List<Map<String, dynamic>>> salonBookings = {
   'Salon1': [
     {
       'start': DateTime.now().add(const Duration(hours: 2)),
       'end': DateTime.now().add(const Duration(hours: 3)),
+      'service': 'Haircut',
     },
     {
       'start': DateTime.now().add(const Duration(hours: 4)),
       'end': DateTime.now().add(const Duration(hours: 5)),
+      'service': 'Manicure',
     },
   ],
 };
@@ -38,15 +40,17 @@ class _BookingPageState extends State<BookingPage> {
   DateTime? selectedStartTime;
   DateTime? selectedEndTime;
   bool isSlotAvailable = true;
+  bool isAppointmentConfirmed = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Book an Appointment at ${widget.salonName}'),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        controller: _scrollController,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -62,8 +66,8 @@ class _BookingPageState extends State<BookingPage> {
               onChanged: (newValue) {
                 setState(() {
                   selectedService = newValue;
-                  selectedStartTime = null; // Reset the start time when a new service is picked
-                  selectedEndTime = null; // Reset the end time when a new service is picked
+                  selectedStartTime = null;
+                  selectedEndTime = null;
                 });
               },
               decoration: const InputDecoration(
@@ -122,6 +126,7 @@ class _BookingPageState extends State<BookingPage> {
                   style: TextStyle(color: Colors.red),
                 ),
               ),
+            ..._buildAppointmentContainers(),
           ],
         ),
       ),
@@ -140,8 +145,8 @@ class _BookingPageState extends State<BookingPage> {
     if (pickedDate != null) {
       setState(() {
         selectedDate = pickedDate;
-        selectedStartTime = null; // Reset the start time when a new date is picked
-        selectedEndTime = null; // Reset the end time when a new date is picked
+        selectedStartTime = null;
+        selectedEndTime = null;
       });
     }
   }
@@ -166,8 +171,8 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  List<Map<String, DateTime>> _getTakenSlots() {
-    List<Map<String, DateTime>> takenSlots = salonBookings[widget.salonId] ?? [];
+  List<Map<String, dynamic>> _getTakenSlots() {
+    List<Map<String, dynamic>> takenSlots = salonBookings[widget.salonId] ?? [];
     return takenSlots
         .where((slot) =>
             slot['start']!.year == selectedDate?.year &&
@@ -178,7 +183,7 @@ class _BookingPageState extends State<BookingPage> {
 
   void _bookAppointment() {
     if (selectedService != null && selectedStartTime != null && selectedEndTime != null) {
-      List<Map<String, DateTime>> bookings = salonBookings[widget.salonId] ?? [];
+      List<Map<String, dynamic>> bookings = salonBookings[widget.salonId] ?? [];
       bool isOverlap = bookings.any((booking) =>
           (booking['start']!.isBefore(selectedEndTime!) && booking['end']!.isAfter(selectedStartTime!)));
 
@@ -192,20 +197,141 @@ class _BookingPageState extends State<BookingPage> {
           bookings.add({
             'start': selectedStartTime!,
             'end': selectedEndTime!,
+            'service': selectedService!,
           });
           salonBookings[widget.salonId] = bookings;
+          isAppointmentConfirmed = true;
+
+          // Resetting the state to initial state
+          // String? confirmedService = selectedService;
+          // DateTime? confirmedDate = selectedDate;
+          // DateTime? confirmedStartTime = selectedStartTime;
+          // DateTime? confirmedEndTime = selectedEndTime;
+
+          selectedService = null;
+          selectedDate = null;
+          selectedStartTime = null;
+          selectedEndTime = null;
+
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scrollController.animateTo(
+              _scrollController.position.minScrollExtent,
+              duration: const Duration(seconds: 1),
+              curve: Curves.easeInOut,
+            );
+          });
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingPage(
+                salonId: widget.salonId,
+                salonName: widget.salonName,
+              ),
+            ),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Appointment booked successfully!'),
+          ));
         });
-        // Navigate to a success page or show a success message
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Appointment booked successfully!'),
-        ));
       }
     }
   }
+
+  List<Widget> _buildAppointmentContainers() {
+    List<Map<String, dynamic>> bookings = salonBookings[widget.salonId] ?? [];
+    return bookings.map((booking) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        margin: const EdgeInsets.only(top: 20),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.green),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Salon: ${widget.salonName}', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 10),
+            Text('Service: ${booking['service']}', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 10),
+            Text('Date: ${DateFormat('yyyy-MM-dd').format(booking['start']!)}', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 10),
+            Text('Time: ${DateFormat('kk:mm').format(booking['start']!)} - ${DateFormat('kk:mm').format(booking['end']!)}', style: TextStyle(fontSize: 16)),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ReschedulePage(salonId: '', salonName: '',)),
+                    );
+                  },
+                  child: const Text('Reschedule'),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return _buildDeleteConfirmationDialog(context, booking);
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }).toList();
+  }
+
+  Widget _buildDeleteConfirmationDialog(BuildContext context, Map<String, dynamic> booking) {
+    TextEditingController reasonController = TextEditingController();
+    return AlertDialog(
+      title: const Text('Cancel Appointment'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text('Are you sure you want to cancel this appointment?'),
+          const SizedBox(height: 20),
+          TextField(
+            controller: reasonController,
+            decoration: const InputDecoration(
+              labelText: 'Reason for cancellation',
+              border: OutlineInputBorder(),
+            ),
+            maxLines: 3,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          child: const Text('No'),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        ElevatedButton(
+          child: const Text('Cancel Appointment'),
+          onPressed: () {
+            setState(() {
+              salonBookings[widget.salonId]!.remove(booking);
+            });
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Appointment cancelled.'),
+            ));
+          },
+        ),
+      ],
+    );
+  }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: BookingPage(salonId: 'Salon1', salonName: 'Elegant Hair Salon'),
-  ));
-}

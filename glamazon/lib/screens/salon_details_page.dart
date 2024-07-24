@@ -97,8 +97,8 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BookingPage(
-                                          salonId: '',
-                                          salonName: '',
+                                          salonId: widget.salon.id,
+                                          salonName: widget.salon.name,
                                         )),
                               );
                             },
