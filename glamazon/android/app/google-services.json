@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191028175058",
+    "project_id": "gl-f0936",
+    "storage_bucket": "gl-f0936.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191028175058:android:d4277a715ab2a4c3834d0b",
+        "android_client_info": {
+          "package_name": "com.glamazonsalon.glamazon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRUNxWg5EVEerOwTKEyxJFjPh-jiYEW-w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

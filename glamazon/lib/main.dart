@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/splash.dart';
-import 'package:glamazon/screens/profile_page.dart'; // Import ProfilePage
+import 'package:glamazon/screens/profile_page.dart'; 
 import 'package:glamazon/screens/edit_profile_page.dart';
-import 'package:glamazon/utils/colors.dart'; // Import EditProfilePage
+import 'package:glamazon/utils/colors.dart'; 
+import 'package:firebase_core/firebase_core.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+  );
+  HydratedBloc.storage= await HydratedStorage.build(storageDirectory: await getApplicationDocumentsDirectory());
   runApp(const MyApplication());
 }
 
