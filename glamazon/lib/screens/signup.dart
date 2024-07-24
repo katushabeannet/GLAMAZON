@@ -18,6 +18,7 @@ class _signUpState extends State<signUp> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

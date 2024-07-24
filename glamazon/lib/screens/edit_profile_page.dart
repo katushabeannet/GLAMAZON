@@ -85,6 +85,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('Edit Profile'),
         backgroundColor: const Color(0xFFA0522D), // Sienna color

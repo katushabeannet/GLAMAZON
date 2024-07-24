@@ -88,6 +88,7 @@ class _SalonListState extends State<SalonList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('Salons'),
         bottom: PreferredSize(

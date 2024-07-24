@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/notification-deatails.dart';
-import 'package:glamazon/screens/salonownerhome.dart';
+import 'package:glamazon/screens/salonownerhome%20copy.dart';
 import '../reusable_widgets/reusable_widgets.dart';
 import 'ownersignup.dart';
 
@@ -12,8 +12,9 @@ class SalonOwnerLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Salon Owner Login'),
+        title: Text('Salon Login'),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,

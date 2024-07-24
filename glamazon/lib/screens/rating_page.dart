@@ -16,9 +16,11 @@ class _RatingsPageState extends State<RatingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Rate Salon'),
-        backgroundColor: Color(0xFF882D17),
+        backgroundColor:Color.fromARGB(179, 181, 81, 31)
+,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

@@ -85,6 +85,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Chat Room'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color

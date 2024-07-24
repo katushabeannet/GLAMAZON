@@ -15,6 +15,7 @@ class _SettingsPageState extends State<SettingsOwner> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Settings'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color

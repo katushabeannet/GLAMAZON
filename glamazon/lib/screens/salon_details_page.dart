@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
-import 'package:glamazon/screens/chat_room_page.dart';
+import 'package:glamazon/screens/chat-page.dart';
 import 'package:glamazon/screens/profile_page.dart';
 import 'package:glamazon/screens/rating_page.dart';
- // Ensure proper import
+// Ensure proper import
 
 import 'salon_list.dart';
 
@@ -34,17 +34,18 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Glamazon', style: TextStyle(color: Colors.white)),
+            Text('Glamazon', style: TextStyle(color: Colors.black)),
             IconButton(
-              icon: Icon(Icons.person, color: Colors.white),
+              icon: Icon(Icons.person, color: Colors.black),
               onPressed: () {
                 // Navigate to the ProfilePage
                 Navigator.push(
-                   context,
+                  context,
                   MaterialPageRoute(
                     builder: (context) => ProfilePage(
                       profileImageUrl: '',
@@ -62,7 +63,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
             ),
           ],
         ),
-        backgroundColor: Color(0xFF882D17), // Dark Sienna as base color
+        backgroundColor: Color.fromARGB(179, 181, 81, 31), // Dark Sienna as base color
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -102,7 +103,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFAA4A30), // Sienna color
+                              backgroundColor: Color.fromARGB(255, 164, 100, 68), // Sienna color
                             ),
                             child: Text('Book Now',
                                 style: TextStyle(color: Colors.white)),
@@ -115,7 +116,6 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                                 MaterialPageRoute(
                                     builder: (context) => RatingsPage(
                                           salonId: '',
-                                          
                                         )),
                               );
                               if (result != null) {
@@ -125,7 +125,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFFAA4A30), // Sienna color
+                              backgroundColor: Color.fromARGB(255, 164, 100, 68), // Sienna color
                             ),
                             child: Text('Rate Us',
                                 style: TextStyle(color: Colors.white)),
@@ -156,17 +156,17 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFFAA4A30),
+        backgroundColor: Color.fromARGB(179, 181, 81, 31),
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
-            backgroundColor: Colors.white, // Darker Sienna shade
+            backgroundColor: Colors.black, // Darker Sienna shade
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.chat),
             label: 'Chat',
-            backgroundColor: Colors.white, // Darker Sienna shade
+            backgroundColor: Colors.black, // Darker Sienna shade
           ),
         ],
         selectedItemColor: Colors.white,
@@ -180,7 +180,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => ChatRoomPage()),
+              MaterialPageRoute(builder: (context) => ChatPage()),
             );
           }
         },
@@ -189,28 +189,31 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
   }
 
   Widget buildGallery(List<Map<String, String>> galleryItems) {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 2,
-      children: galleryItems.map((item) {
-        return Card(
-          child: Column(
-            children: [
-              Expanded(
-                child: Image.asset(
-                  item['imagePath']!,
-                  fit: BoxFit.cover,
+    return SingleChildScrollView(
+      child: GridView.count(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        crossAxisCount: 2,
+        children: galleryItems.map((item) {
+          return Card(
+            child: Column(
+              children: [
+                Expanded(
+                  child: Image.asset(
+                    item['imagePath']!,
+                    fit: BoxFit.fill,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(item['name']!,
-                    style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(item['name']!,
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 

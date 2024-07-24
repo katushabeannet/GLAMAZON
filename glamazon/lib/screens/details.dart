@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/chat-page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
-import 'package:glamazon/screens/chat_room_page.dart';
 
 class SalonDetails extends StatefulWidget {
   const SalonDetails({super.key});
@@ -29,6 +29,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,7 +137,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  ChatRoomPage()),
+              MaterialPageRoute(builder: (context) =>  ChatPage()),
             );
           }
         },

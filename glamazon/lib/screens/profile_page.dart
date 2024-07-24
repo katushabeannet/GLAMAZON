@@ -25,6 +25,7 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('My Profile'),
         backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
@@ -128,7 +129,6 @@ class ProfilePage extends StatelessWidget {
           ],
         ),
       ),
-      backgroundColor: Color.fromARGB(255, 238, 134, 86),
     );
   }
 

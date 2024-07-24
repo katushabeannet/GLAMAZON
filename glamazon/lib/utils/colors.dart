@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  static const Color customColor =  Color.fromARGB(255, 124, 28, 3);
+  static const Color customColor =  Color.fromARGB(255, 181, 81, 31)
+;
 
   // Define lighter shades of the custom color
   static final Color lighterColor1 = customColor.withOpacity(0.1);
@@ -20,7 +21,7 @@ class AppTheme {
       primarySwatch: createMaterialColor(customColor),
       primaryColor: customColor,
       appBarTheme: AppBarTheme(
-        backgroundColor: lighterColor6,
+        backgroundColor: lighterColor7,
         iconTheme: IconThemeData(color: Colors.white),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
+import 'package:glamazon/screens/details.dart';
 import 'package:glamazon/screens/settings_owner.dart';
 import 'appointments_page.dart';
 import 'chat-page.dart';
@@ -9,10 +10,11 @@ class SalonOwnerHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Salon Owner Home'),
+        title: Text('My Salon'),
         backgroundColor:
-            hexStringToColor("#C0724A"), // Matching the gradient colors
+            Color.fromARGB(179, 181, 81, 31), // Matching the gradient colors
       ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
@@ -24,7 +26,7 @@ class SalonOwnerHome extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8.0),
                   child: Image.asset(
-                    'assets/images/eagle.png',
+                    'assets/images/spa.jpg',
                     width: 80,
                     height: 80,
                     fit: BoxFit.cover,
@@ -81,14 +83,18 @@ class SalonOwnerHome extends StatelessWidget {
                       );
                     },
                   ),
-                  // _buildGridButton(
-                  //   context,
-                  //   Icons.assignment,
-                  //   'Applications',
-                  //   () {
-                  //     // Navigate to Applications page
-                  //   },
-                  // ),
+                  _buildGridButton(
+                    context,
+                    Icons.photo_album_outlined,
+                    'Gallery',
+                    () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => SalonDetails()),
+                      );
+                    },
+                  ),
                   _buildGridButton(
                     context,
                     Icons.chat,
