@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:glamazon/screens/ownersignup.dart';
 import 'package:glamazon/screens/salon_list.dart';
 import 'package:glamazon/screens/signup.dart';
+import 'package:glamazon/utils/colors.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,14 +15,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       title: 'Glamazon',
-      theme: ThemeData(
-        primarySwatch: Colors.brown,
-      ),
       home: const MyImageSlider(),
       routes: {
         '/customer': (context) => const CustomerScreen(),
-        '/addBusiness': (context) => const AddBusinessScreen(),
+        '/addBusiness': (context) => SalonOwnerSignUp(),
         '/serviceDetails': (context) => const SalonList(),
       },
     );
@@ -60,7 +62,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
             const Text(
               'Glamazon',
               style: TextStyle(
-                color: Color.fromARGB(255, 215, 162, 1),
+                // color: Color.fromARGB(255, 215, 162, 1),
                 fontFamily: 'Oswald',
                 fontWeight: FontWeight.bold,
               ),
@@ -75,7 +77,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 } else if (result == 'add business') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const AddBusinessScreen()),
+                    MaterialPageRoute(builder: (context) => SalonOwnerSignUp()),
                   );
                 }
               },
@@ -89,13 +91,13 @@ class _MyImageSliderState extends State<MyImageSlider> {
                   child: Text('add business'),
                 ),
               ],
-              color: const Color.fromARGB(255, 161, 115, 77), // Background color of the drop-down menu
+              // color: const Color.fromARGB(255, 161, 115, 77), // Background color of the drop-down menu
               child: const Text('Join us'),
             ),
           ],
         ),
         elevation: 3,
-        backgroundColor: const Color.fromARGB(255, 161, 115, 77),
+        // backgroundColor: const Color.fromARGB(255, 161, 115, 77),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -107,8 +109,8 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Image(
-                    image: AssetImage('assets/images/spa.jpg'), // Replace with your logo asset path
-                    height: 50,
+                    image: AssetImage('assets/images/logo3.png'), // Replace with your logo asset path
+                    height: 90,
                   ),
                   Column(
                     children: [
@@ -118,7 +120,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF882D17), // Light shade of sienna
+                          // color: Color(0xFF882D17), // Light shade of sienna
                         ),
                       ),
                     ],
@@ -169,7 +171,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF882D17), // Light shade of sienna
+                  // color: Color(0xFF882D17), // Light shade of sienna
                 ),
               ),
             ),
@@ -237,7 +239,7 @@ class _MyImageSliderState extends State<MyImageSlider> {
               label,
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF882D17), // Light shade of sienna
+                // color: Color(0xFF882D17), // Light shade of sienna
               ),
             ),
           ],
@@ -263,18 +265,18 @@ class CustomerScreen extends StatelessWidget {
   }
 }
 
-class AddBusinessScreen extends StatelessWidget {
-  const AddBusinessScreen({super.key});
+// class AddBusinessScreen extends StatelessWidget {
+//   const AddBusinessScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Business Screen'),
-      ),
-      body: const Center(
-        child: Text('Add your business details here.'),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Add Business Screen'),
+//       ),
+//       body: const Center(
+//         child: Text('Add your business details here.'),
+//       ),
+//     );
+//   }
+// }

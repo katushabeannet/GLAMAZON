@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/splash.dart';
 import 'package:glamazon/screens/profile_page.dart'; // Import ProfilePage
-import 'package:glamazon/screens/edit_profile_page.dart'; // Import EditProfilePage
+import 'package:glamazon/screens/edit_profile_page.dart';
+import 'package:glamazon/utils/colors.dart'; // Import EditProfilePage
 
 void main() {
   runApp(const MyApplication());
@@ -13,6 +14,9 @@ class MyApplication extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
       home: const Splash(),
       debugShowCheckedModeBanner: false,
       routes: {

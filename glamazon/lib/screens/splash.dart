@@ -9,18 +9,28 @@ class Splash extends StatefulWidget {
 }
 
 class _SplashState extends State<Splash> {
+  bool _showSlogan = false;
+
   @override
   void initState() {
     super.initState();
+    _startAnimation();
     _navigatetohome();
   }
 
+  _startAnimation() async {
+    await Future.delayed(const Duration(seconds: 7));
+    setState(() {
+      _showSlogan = true;
+    });
+  }
+
   _navigatetohome() async {
-    await Future.delayed(const Duration(milliseconds: 5000), () {});
+    await Future.delayed(const Duration(milliseconds: 9500), () {});
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const MyImageSlider()));
+      context,
+      MaterialPageRoute(builder: (context) => const MyImageSlider()),
+    );
   }
 
   @override
@@ -30,20 +40,30 @@ class _SplashState extends State<Splash> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(
-              height: 100,
-              width: 100,
-              // color: Colors.amber,
-              child: Image.asset('assets/images/image1.jpg'), // Replace with your image path
+            TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: 1.0),
+              duration: const Duration(seconds: 7),
+              builder: (context, scale, child) {
+                return Transform.scale(
+                  scale: scale,
+                  child: SizedBox(
+                    height: 200,
+                    width: 200,
+                    child: Image.asset('assets/images/logo3.png'), // Replace with your image path
+                  ),
+                );
+              },
             ),
-            Container(
-              padding: const EdgeInsets.only(top: 16.0),
+            const SizedBox(height: 0), // Reduced spacing between logo and slogan
+            AnimatedOpacity(
+              opacity: _showSlogan ? 1.0 : 0.0,
+              duration: const Duration(seconds: 1),
               child: const Text(
-                'GLAMAZON',
+                'Book ~ your ~ look ~ online',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: 19,
                   fontWeight: FontWeight.bold,
-                  color: Color.fromARGB(239, 102, 55, 1),
+                  color: Color.fromARGB(255, 99, 62, 20),
                 ),
               ),
             ),

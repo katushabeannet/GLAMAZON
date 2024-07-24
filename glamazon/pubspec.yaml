@@ -42,11 +42,12 @@ dependencies:
   cupertino_icons: ^1.0.6
   carousel_slider: ^4.2.1
   image_picker: ^1.1.2
+  intl: ^0.19.0
+  image: ^4.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  intl: ^0.19.0
 
 
   # The "flutter_lints" package below contains a set of recommended lints to
