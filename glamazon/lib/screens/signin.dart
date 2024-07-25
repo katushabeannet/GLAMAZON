@@ -1,6 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/reusable_widgets/reusable_widgets.dart';
-import 'package:glamazon/screens/auto_image_slider.dart';
+import 'package:glamazon/screens/customer-home.dart';
 // import 'package:glamazon/screens/notification-deatails.dart';
 import 'package:glamazon/screens/signup.dart';
 
@@ -35,7 +36,7 @@ class _SignInState extends State<SignIn> {
                 const SizedBox(
                   height: 30,
                 ),
-                reusableTextField("Enter Username", Icons.person_2_outlined,
+                reusableTextField("Enter Used Email", Icons.person_2_outlined,
                     false, _emailTextController),
                 const SizedBox(
                   height: 20,
@@ -47,10 +48,15 @@ class _SignInState extends State<SignIn> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
+                    FirebaseAuth.instance.signInWithEmailAndPassword(
+                      email: _emailTextController.text, 
+                      password: _passwordTextController.text
+                    ).then((Value){
+                      Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MyImageSlider()),
+                      MaterialPageRoute(builder: (context) => const ImageSlider()),
                     );
+                    });
                   },
                   child: const Text("Sign In"),
                 ),

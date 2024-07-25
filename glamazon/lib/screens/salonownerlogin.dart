@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:glamazon/screens/notification-deatails.dart';
 import 'package:glamazon/screens/salonownerhome%20copy.dart';
 import '../reusable_widgets/reusable_widgets.dart';
@@ -6,13 +7,12 @@ import 'ownersignup.dart';
 
 // ignore: must_be_immutable
 class SalonOwnerLogin extends StatelessWidget {
-  TextEditingController _emailTextController = TextEditingController();
-  TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Salon Login'),
       ),
@@ -46,13 +46,40 @@ class SalonOwnerLogin extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                signInSignUpButton(context, true, () {
-                  // Handle login logic here, then navigate to home screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SalonOwnerHome()),
-                  );
-                }),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                        email: _emailTextController.text,
+                        password: _passwordTextController.text
+                      );
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SalonOwnerHome()),
+                      );
+                    } on FirebaseAuthException catch (e) {
+                      if (e.code == 'user-not-found') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('No user found for that email.')),
+                        );
+                      } else if (e.code == 'wrong-password') {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Wrong password provided.')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Error: ${e.message}')),
+                        );
+                      }
+                    }
+                  },
+                  child: Text('Login'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xff089be3),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
                 signUpOption(context),
                 const SizedBox(
                   height: 40,

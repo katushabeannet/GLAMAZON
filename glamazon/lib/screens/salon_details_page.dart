@@ -47,15 +47,15 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const ProfilePage(
-                      profileImageUrl: '',
-                      salonName: '',
-                      location: '',
-                      ownerName: '',
-                      contact: '',
-                      email: '',
-                      websiteUrl: '',
-                      aboutUs: '',
+                    builder: (context) => ProfilePage(
+                      // profileImageUrl: '',
+                      // salonName: '',
+                      // location: '',
+                      // ownerName: '',
+                      // contact: '',
+                      // email: '',
+                      // websiteUrl: '',
+                      // aboutUs: '',
                     ),
                   ),
                 );

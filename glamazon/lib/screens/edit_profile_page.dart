@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:glamazon/screens/profile_page.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Import Firebase Storage package
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -24,14 +28,30 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-    _salonNameController.text = 'Glamazon Salon'; // Example default data
-    _ownerNameController.text = 'Enter Your Name';
-    _contactController.text = '123-456-7890';
-    _emailController.text = 'alinda.tracy@example.com';
-    _locationController.text = '123 Beauty Street, Glamour City';
-    _websiteController.text = 'https://example.com'; // Example new field data
-    _aboutUsController.text =
-        'Welcome to Glamazon Salon, where beauty meets excellence!'; // Example new field data
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      final profileDoc = await FirebaseFirestore.instance.collection('owners').doc(user.uid).get();
+      final data = profileDoc.data();
+      if (data != null) {
+        setState(() {
+          _salonNameController.text = data['salonName'] ?? '';
+          _ownerNameController.text = data['ownerName'] ?? '';
+          _contactController.text = data['contact'] ?? '';
+          _emailController.text = data['email'] ?? '';
+          _locationController.text = data['location'] ?? '';
+          _aboutUsController.text = data['aboutUs'] ?? '';
+          _websiteController.text = data['websiteUrl'] ?? '';
+          if (data['profileImageUrl'] != null && data['profileImageUrl']!.isNotEmpty) {
+            _profileImage = File(data['profileImageUrl']!); // Assuming the URL is a local path
+          }
+        });
+      }
+    }
   }
 
   void _showImageSourceDialog() {
@@ -42,7 +62,7 @@ class EditProfilePageState extends State<EditProfilePage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.camera),
+              leading: const Icon(Icons.camera, color: Color(0xFFA0522D)), // Brown color
               title: const Text('Camera'),
               onTap: () {
                 Navigator.of(context).pop(); // Close the bottom sheet
@@ -50,7 +70,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.image),
+              leading: const Icon(Icons.image, color: Color(0xFFA0522D)), // Brown color
               title: const Text('Gallery'),
               onTap: () {
                 Navigator.of(context).pop(); // Close the bottom sheet
@@ -70,15 +90,73 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       if (image != null) {
         setState(() {
-          _profileImage =
-              File(image.path); // Set the picked image as the profile picture
+          _profileImage = File(image.path); // Set the picked image as the profile picture
         });
       }
     } catch (e) {
-      // Handle any errors that might occur during image picking
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );
+    }
+  }
+
+  Future<String> _uploadProfileImage(File image) async {
+    final storageRef = FirebaseStorage.instance.ref();
+    final profileImagesRef = storageRef.child('profile_images/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final uploadTask = profileImagesRef.putFile(image);
+
+    final snapshot = await uploadTask.whenComplete(() => null);
+    final downloadUrl = await snapshot.ref.getDownloadURL();
+    return downloadUrl;
+  }
+
+  Future<void> _saveProfile() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User is not authenticated')),
+        );
+        return;
+      }
+
+      String? profileImageUrl;
+      if (_profileImage != null) {
+        profileImageUrl = await _uploadProfileImage(_profileImage!);
+      }
+
+      final profileData = {
+        'profileImageUrl': profileImageUrl ?? '',
+        'salonName': _salonNameController.text,
+        'ownerName': _ownerNameController.text,
+        'contact': _contactController.text,
+        'email': _emailController.text,
+        'location': _locationController.text,
+        'websiteUrl': _websiteController.text.isEmpty ? '' : _websiteController.text,
+        'aboutUs': _aboutUsController.text,
+        'role': 'salon_owner', // To distinguish between customer and salon owner
+      };
+
+      try {
+        await FirebaseFirestore.instance
+            .collection('owners')
+            .doc(user.uid)
+            .set(profileData);
+
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ProfilePage(),
+            ),
+          );
+        }
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error saving profile: $e')),
+        );
+      }
     }
   }
 
@@ -96,6 +174,7 @@ class EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             children: [
               Stack(
+                alignment: Alignment.bottomRight,
                 children: [
                   CircleAvatar(
                     radius: 60,
@@ -104,14 +183,9 @@ class EditProfilePageState extends State<EditProfilePage> {
                         : const AssetImage('assets/images/default.png')
                             as ImageProvider<Object>,
                   ),
-                  Positioned(
-                    bottom: 0,
-                    right: 0,
-                    child: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.white),
-                      onPressed: _showImageSourceDialog,
-                      // show dialog to choose image source
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    onPressed: _showImageSourceDialog,
                   ),
                 ],
               ),
@@ -119,6 +193,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               Form(
                 key: _formKey,
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _buildTextFormField(
                       controller: _salonNameController,
@@ -126,12 +201,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                       hint: 'Enter Salon Name',
                       icon: Icons.business,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _ownerNameController,
                       label: 'Owner\'s Name',
                       hint: 'Enter Owner\'s Name',
                       icon: Icons.person,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _contactController,
                       label: 'Contact',
@@ -139,61 +216,41 @@ class EditProfilePageState extends State<EditProfilePage> {
                       icon: Icons.phone,
                       keyboardType: TextInputType.phone,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _emailController,
                       label: 'Email',
-                      hint: 'Enter Email Address',
+                      hint: 'Enter Email',
                       icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _locationController,
                       label: 'Location',
                       hint: 'Enter Location',
                       icon: Icons.location_on,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _websiteController,
                       label: 'Website URL',
                       hint: 'Enter Website URL',
                       icon: Icons.web,
-                      keyboardType: TextInputType.url,
+                      optional: true,
                     ),
+                    const SizedBox(height: 15),
                     _buildTextFormField(
                       controller: _aboutUsController,
                       label: 'About Us',
-                      hint: 'Enter About Us Description',
+                      hint: 'Enter About Us',
                       icon: Icons.info,
                     ),
                     const SizedBox(height: 20),
-                    ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState?.validate() ?? false) {
-                          Navigator.pop(
-                            context,
-                            {
-                              'profileImageUrl': _profileImage?.path ??
-                                  'https://example.com/profile.jpg',
-                              'salonName': _salonNameController.text,
-                              'location': _locationController.text,
-                              'ownerName': _ownerNameController.text,
-                              'contact': _contactController.text,
-                              'email': _emailController.text,
-                              'websiteUrl': _websiteController.text,
-                              'aboutUs': _aboutUsController.text,
-                            },
-                          );
-                        }
-                      },
-                      child: const Text('Save Changes'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFA0522D), // Sienna color
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 30, vertical: 15),
-                        textStyle: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                    Center(
+                      child: ElevatedButton(
+                        onPressed: _saveProfile,
+                        child: const Text('Save'),
                       ),
                     ),
                   ],
@@ -212,37 +269,36 @@ class EditProfilePageState extends State<EditProfilePage> {
     required String hint,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    bool optional = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10.0),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        decoration: InputDecoration(
-          prefixIcon:
-              Icon(icon, color: const Color(0xFFA0522D)), // Sienna color
-          labelText: label,
-          hintText: hint,
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(
-                color: const Color(0xFFA0522D)
-                    .withOpacity(0.5)), // Light Sienna color
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            borderSide:
-                BorderSide(color: const Color(0xFFA0522D)), // Sienna color
-          ),
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        prefixIcon: Icon(icon, color: const Color(0xFFA0522D)), // Brown color for the icon
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the border
         ),
-        cursorColor: const Color(0xFFA0522D), // Sienna color
-        validator: (value) {
-          if (value == null || value.isEmpty) {
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the focused border
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8.0),
+          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the enabled border
+        ),
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          if (!optional) {
             return 'Please enter $label';
           }
-          return null;
-        },
-      ),
+        }
+        return null;
+      },
     );
   }
 }

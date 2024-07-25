@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/reusable_widgets/reusable_widgets.dart';
-import 'package:glamazon/screens/auto_image_slider.dart';
+// import 'package:glamazon/screens/customer-home.dart';
 import 'package:glamazon/screens/notification-deatails.dart';
+import 'package:glamazon/screens/profile-edit.dart';
 import 'package:glamazon/screens/signin.dart';
 
 class signUp extends StatefulWidget {
@@ -12,6 +14,7 @@ class signUp extends StatefulWidget {
 }
 
 class _signUpState extends State<signUp> {
+  final TextEditingController _usernameTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
   @override
@@ -47,7 +50,7 @@ class _signUpState extends State<signUp> {
                   height: 30,
                 ),
                 reusableTextField("Enter Usename", Icons.person_2_outlined,
-                    false, _emailTextController),
+                    false, _usernameTextController),
                 const SizedBox(
                   height: 20,
                 ),
@@ -56,16 +59,23 @@ class _signUpState extends State<signUp> {
                 const SizedBox(
                   height: 20,
                 ),
-                reusableTextField("Enter Password", Icons.lock_outlined, false,
+                reusableTextField("Enter Password", Icons.lock_outlined, true,
                     _passwordTextController),
                 const SizedBox(
                   height: 20,
                 ),
                 signInSignUpButton(context, false, () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyImageSlider()),
-                  );
+                  FirebaseAuth.instance.createUserWithEmailAndPassword(
+                    email: _emailTextController.text, 
+                    password: _passwordTextController.text).then ((Value) {
+                      print("Signed Up");
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ProfileEditScreen()),
+                      );
+                    }).onError((error, StackTrace){
+                      print("error, ${error.toString()}");
+                    });
                 }),
                 signUpOption()
               ],

@@ -30,16 +30,16 @@ class MyApplication extends StatelessWidget {
       home: const Splash(),
       debugShowCheckedModeBanner: false,
       routes: {
-        '/profile': (context) => const ProfilePage(
-              profileImageUrl: 'https://example.com/profile.jpg',
-              salonName: 'Glamazon Salon',
-              location: '123 Beauty Street, Glamour City',
-              ownerName: 'Alinda Tracy',
-              contact: '123-456-7890',
-              email: 'alinda.tracy@example.com',
-              websiteUrl: 'https://example.com',
-              aboutUs:
-                  'Welcome to Glamazon Salon, where beauty meets excellence!',
+        '/profile': (context) => ProfilePage(
+              // profileImageUrl: 'https://example.com/profile.jpg',
+              // salonName: 'Glamazon Salon',
+              // location: '123 Beauty Street, Glamour City',
+              // ownerName: 'Alinda Tracy',
+              // contact: '123-456-7890',
+              // email: 'alinda.tracy@example.com',
+              // websiteUrl: 'https://example.com',
+              // aboutUs:
+                  // 'Welcome to Glamazon Salon, where beauty meets excellence!',
             ),
         '/edit-profile': (context) => const EditProfilePage(),
       },

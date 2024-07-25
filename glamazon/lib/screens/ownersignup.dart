@@ -1,23 +1,19 @@
+import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:glamazon/reusable_widgets/reusable_widgets.dart';
+import 'package:glamazon/screens/edit_profile_page.dart';
 import 'package:glamazon/screens/notification-deatails.dart';
-import 'package:glamazon/screens/salonownerhome%20copy.dart';
 import 'package:glamazon/screens/salonownerlogin.dart';
-import '../reusable_widgets/reusable_widgets.dart';
 
-// ignore: must_be_immutable
 class SalonOwnerSignUp extends StatelessWidget {
-  TextEditingController _emailTextController = TextEditingController();
-  TextEditingController _passwordTextController = TextEditingController();
-  TextEditingController _confirmPasswordTextController =
-      TextEditingController();
+  final TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _confirmPasswordTextController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
-      // appBar: AppBar(
-      //   title: Text('Salon Owner Sign Up'),
-      // ),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -54,11 +50,23 @@ class SalonOwnerSignUp extends StatelessWidget {
                   height: 20,
                 ),
                 signInSignUpButton(context, false, () {
-                  // Handle sign up logic here, then navigate to home screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SalonOwnerHome()),
-                  );
+                  if (_passwordTextController.text == _confirmPasswordTextController.text) {
+                    FirebaseAuth.instance.createUserWithEmailAndPassword(
+                      email: _emailTextController.text,
+                      password: _passwordTextController.text,
+                    ).then((userCredential) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                      );
+                    }).catchError((error) {
+                      print("Error: ${error.toString()}");
+                    });
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Passwords do not match')),
+                    );
+                  }
                 }),
                 signUpOption(context),
                 const SizedBox(

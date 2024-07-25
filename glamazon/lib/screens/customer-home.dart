@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:glamazon/screens/ownersignup.dart';
+import 'package:glamazon/screens/auto_image_slider.dart';
+import 'package:glamazon/screens/booking_page.dart';
+import 'package:glamazon/screens/profile-details.dart';
+import 'package:glamazon/screens/profile-edit.dart';
 import 'package:glamazon/screens/salon_list.dart';
-import 'package:glamazon/screens/signup.dart';
 import 'package:glamazon/utils/colors.dart';
 
 void main() {
@@ -19,24 +22,24 @@ class MyApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       title: 'Glamazon',
-      home: const MyImageSlider(),
+      home: const ImageSlider(),
       routes: {
-        '/customer': (context) => const CustomerScreen(),
-        '/addBusiness': (context) => SalonOwnerSignUp(),
         '/serviceDetails': (context) => const SalonList(),
+        '/home': (context) => const MyImageSlider(),
+        '/profile': (context) => const ProfileEditScreen(),
       },
     );
   }
 }
 
-class MyImageSlider extends StatefulWidget {
-  const MyImageSlider({super.key});
+class ImageSlider extends StatefulWidget {
+  const ImageSlider({super.key});
 
   @override
-  State<MyImageSlider> createState() => _MyImageSliderState();
+  State<ImageSlider> createState() => _ImageSliderState();
 }
 
-class _MyImageSliderState extends State<MyImageSlider> {
+class _ImageSliderState extends State<ImageSlider> {
   final myItems = [
     'assets/images/spa/spa1.jpg',
     'assets/images/nails/images (2).jpeg',
@@ -64,33 +67,27 @@ class _MyImageSliderState extends State<MyImageSlider> {
               style: TextStyle(
                 fontFamily: 'Oswald',
                 fontWeight: FontWeight.bold,
+                fontSize: 24,
               ),
             ),
-            PopupMenuButton<String>(
-              onSelected: (String result) {
-                if (result == 'as a customer') {
+            TextButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut().then((Value) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const signUp()),
+                    MaterialPageRoute(builder: (context) => const MyImageSlider()),
                   );
-                } else if (result == 'add business') {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SalonOwnerSignUp()),
-                  );
-                }
+                });
               },
-              itemBuilder: (BuildContext context) => [
-                const PopupMenuItem<String>(
-                  value: 'as a customer',
-                  child: Text('as a customer'),
+              child: const Text(
+                'Logout',
+                style: TextStyle(
+                  fontFamily: 'Oswald',
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: 20,
                 ),
-                const PopupMenuItem<String>(
-                  value: 'add business',
-                  child: Text('add business'),
-                ),
-              ],
-              child: const Text('Join us'),
+              ),
             ),
           ],
         ),
@@ -100,27 +97,55 @@ class _MyImageSliderState extends State<MyImageSlider> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsets.all(16.0),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Image(
-                    image: AssetImage('assets/images/logo3.png'), // Replace with your logo asset path
+                  const Image(
+                    image: AssetImage('assets/images/logo3.png'),
                     height: 90,
                   ),
-                  // Column(
-                  //   children: [
-                  //     Icon(Icons.calendar_today, color: Color(0xFF882D17), size: 30),
-                  //     Text(
-                  //       'Appointments',
-                  //       style: TextStyle(
-                  //         fontSize: 12,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.calendar_today, color: Color(0xFF882D17), size: 30),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => BookingPage(salonId: '', salonName: '',)),
+                          );
+                        },
+                      ),
+                      const Text(
+                        'Appointments',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.person, color: Color(0xFF882D17), size: 30),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                          );
+                        },
+                      ),
+                      const Text(
+                        'Profile',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -210,36 +235,9 @@ class _MyImageSliderState extends State<MyImageSlider> {
     return Expanded(
       child: InkWell(
         onTap: () {
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text.rich(
-                  TextSpan(
-                    text: 'Select ',
-                    style: TextStyle(color: Colors.blue), // Change this color to your desired color
-                    children: <TextSpan>[
-                      TextSpan(
-                        text: 'Join us',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-                content: const Text(
-                  'Please sign up or log in to access this service.',
-                  style: TextStyle(color: Colors.blue), // Same color as the 'Select' word
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text('OK'),
-                  ),
-                ],
-              );
-            },
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SalonList()),
           );
         },
         child: Column(
@@ -265,22 +263,6 @@ class _MyImageSliderState extends State<MyImageSlider> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class CustomerScreen extends StatelessWidget {
-  const CustomerScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Customer Screen'),
-      ),
-      body: const Center(
-        child: Text('Welcome, Customer!'),
       ),
     );
   }

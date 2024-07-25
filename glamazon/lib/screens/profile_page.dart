@@ -1,26 +1,53 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:glamazon/screens/salonownerhome%20copy.dart';
 
-class ProfilePage extends StatelessWidget {
-  final String profileImageUrl;
-  final String salonName;
-  final String location;
-  final String ownerName;
-  final String contact;
-  final String email;
-  final String websiteUrl;
-  final String aboutUs;
+class ProfilePage extends StatefulWidget {
+  @override
+  _ProfilePageState createState() => _ProfilePageState();
+}
 
-  const ProfilePage({
-    super.key,
-    required this.profileImageUrl,
-    required this.salonName,
-    required this.location,
-    required this.ownerName,
-    required this.contact,
-    required this.email,
-    required this.websiteUrl,
-    required this.aboutUs,
-  });
+class _ProfilePageState extends State<ProfilePage> {
+  String? profileImageUrl;
+  String salonName = '';
+  String location = '';
+  String ownerName = '';
+  String contact = '';
+  String email = '';
+  String websiteUrl = '';
+  String aboutUs = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('User is not authenticated')),
+      );
+      return;
+    }
+
+    final profileDoc = await FirebaseFirestore.instance.collection('owners').doc(user.uid).get();
+    final data = profileDoc.data();
+    if (data != null) {
+      setState(() {
+        profileImageUrl = data['profileImageUrl'];
+        salonName = data['salonName'];
+        location = data['location'];
+        ownerName = data['ownerName'];
+        contact = data['contact'];
+        email = data['email'];
+        websiteUrl = data['websiteUrl'];
+        aboutUs = data['aboutUs'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,30 +60,9 @@ class ProfilePage extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.edit, color: Colors.white),
             onPressed: () async {
-              final updatedData = await Navigator.pushNamed(
-                context,
-                '/edit-profile',
-              );
+              final updatedData = await Navigator.pushNamed(context, '/edit-profile');
               if (updatedData != null) {
-                // Cast the result to Map<String, dynamic>
-                final data = updatedData as Map<String, dynamic>;
-
-                // Update the state with new data
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfilePage(
-                      profileImageUrl: data['profileImageUrl'],
-                      salonName: data['salonName'],
-                      location: data['location'],
-                      ownerName: data['ownerName'],
-                      contact: data['contact'],
-                      email: data['email'],
-                      websiteUrl: data['websiteUrl'],
-                      aboutUs: data['aboutUs'],
-                    ),
-                  ),
-                );
+                _fetchProfileData();
               }
             },
           ),
@@ -64,66 +70,84 @@ class ProfilePage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Profile Image
-            CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(profileImageUrl),
+            // Profile Header
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Image
+                CircleAvatar(
+                  radius: 60,
+                  backgroundImage: profileImageUrl != null
+                      ? NetworkImage(profileImageUrl!)
+                      : AssetImage('assets/images/default.png'),
+                ),
+                const SizedBox(width: 20),
+                // Salon Name and Location
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        salonName,
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black, // Sienna color
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        location,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 20),
+            const SizedBox(height: 20),
             // Profile Details
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Salon Name
-                  Text(
-                    salonName,
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black, // Sienna color
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  // Location
-                  Text(
-                    location,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Colors.black54,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  // Owner's Name
-                  _buildDetailRow('Owner\'s Name', ownerName),
-                  const SizedBox(height: 10),
-                  // Contact
-                  _buildDetailRow('Contact', contact),
-                  const SizedBox(height: 10),
-                  // Email
-                  _buildDetailRow('Email', email),
-                  const SizedBox(height: 10),
-                  // Website URL
-                  _buildDetailRow('Website', websiteUrl),
-                  const SizedBox(height: 10),
-                  // About Us
-                  const Text(
-                    'About Us',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black, // Sienna color
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    aboutUs,
-                    style: const TextStyle(fontSize: 16, color: Colors.black87),
-                  ),
-                ],
+            _buildDetailRow('Owner\'s Name', ownerName),
+            const SizedBox(height: 10),
+            _buildDetailRow('Contact', contact),
+            const SizedBox(height: 10),
+            _buildDetailRow('Email', email),
+            const SizedBox(height: 10),
+            _buildDetailRow('Website', websiteUrl),
+            const SizedBox(height: 10),
+            const Text(
+              'About Us',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black, // Sienna color
+              ),
+            ),
+            const SizedBox(height: 5),
+            Text(
+              aboutUs,
+              style: const TextStyle(fontSize: 16, color: Colors.black87),
+            ),
+            const SizedBox(height: 20),
+            // Redirect Button
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SalonOwnerHome()),
+                    );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                ),
+                child: Text('Go to Home'),
               ),
             ),
           ],
