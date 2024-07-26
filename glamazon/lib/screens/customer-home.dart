@@ -201,7 +201,7 @@ class _ImageSliderState extends State<ImageSlider> {
                 children: [
                   Row(
                     children: [
-                      _buildServiceItem(context, 'assets/images/images (8).jpeg', 'Hair styling and Cuts'),
+                      _buildServiceItem(context, 'assets/images/hair/images (8).jpeg', 'Hair styling and Cuts'),
                       const SizedBox(width: 16.0),
                       _buildServiceItem(context, 'assets/images/nails/image02.jpg', 'Nails'),
                     ],
@@ -211,7 +211,7 @@ class _ImageSliderState extends State<ImageSlider> {
                     children: [
                       _buildServiceItem(context, 'assets/images/spa/spa.jpg', 'Spa'),
                       const SizedBox(width: 16.0),
-                      _buildServiceItem(context, 'assets/images/tatto/image14.jpeg', 'Tattoos'),
+                      _buildServiceItem(context, 'assets/images/tatoo/image14.jpeg', 'Tattoos'),
                     ],
                   ),
                   const SizedBox(height: 16.0),
