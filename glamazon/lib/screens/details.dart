@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:glamazon/screens/chat-page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
-import 'package:glamazon/screens/booking_page.dart';
 
 class SalonDetails extends StatefulWidget {
   const SalonDetails({super.key});
@@ -14,15 +16,72 @@ class SalonDetails extends StatefulWidget {
 
 class _SalonDetailsPageState extends State<SalonDetails> {
   final List<Map<String, String>> galleryItems = [];
+  String salonName = '';
+  String? profileImageUrl;
+  String ownerName = '';
+  final ImagePicker picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchSalonDetails();
+    _fetchGalleryItems();
+  }
+
+  Future<void> _fetchSalonDetails() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final profileDoc = await FirebaseFirestore.instance.collection('owners').doc(user.uid).get();
+      final data = profileDoc.data();
+      if (data != null) {
+        setState(() {
+          salonName = data['salonName'] ?? 'Salon Name';
+          profileImageUrl = data['profileImageUrl'];
+          ownerName = data['ownerName'] ?? 'Owner Name';
+        });
+      }
+    }
+  }
+
+  Future<void> _fetchGalleryItems() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      try {
+        final gallerySnapshot = await FirebaseFirestore.instance.collection('owners').doc(user.uid).collection('gallery').get();
+        setState(() {
+          galleryItems.clear();
+          for (var doc in gallerySnapshot.docs) {
+            galleryItems.add({'imagePath': doc['url'], 'name': doc['name']});
+          }
+        });
+      } catch (e) {
+        print('Error fetching gallery items: $e');
+      }
+    }
+  }
 
   Future<void> _pickMedia() async {
-    final ImagePicker picker = ImagePicker();
     final XFile? media = await picker.pickImage(source: ImageSource.gallery);
-
     if (media != null) {
-      setState(() {
-        galleryItems.add({'imagePath': media.path, 'name': 'New Media'});
-      });
+      String fileName = media.name;
+      String filePath = 'gallery/${FirebaseAuth.instance.currentUser!.uid}/$fileName';
+      File file = File(media.path);
+
+      try {
+        await FirebaseStorage.instance.ref(filePath).putFile(file);
+        String downloadUrl = await FirebaseStorage.instance.ref(filePath).getDownloadURL();
+
+        await FirebaseFirestore.instance.collection('owners').doc(FirebaseAuth.instance.currentUser!.uid).collection('gallery').add({
+          'url': downloadUrl,
+          'name': fileName
+        });
+
+        setState(() {
+          galleryItems.add({'imagePath': downloadUrl, 'name': fileName});
+        });
+      } catch (e) {
+        print('Error uploading media: $e');
+      }
     }
   }
 
@@ -31,13 +90,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Text('Glamazon', style: TextStyle(color: Colors.white)),
-            const Icon(Icons.person, color: Colors.white),
-          ],
-        ),
+        title: const Text('My Gallery', style: TextStyle(color: Colors.white)),
         backgroundColor: const Color(0xFF882D17), // Dark Sienna as base color
       ),
       body: SingleChildScrollView(
@@ -48,36 +101,38 @@ class _SalonDetailsPageState extends State<SalonDetails> {
             children: [
               Row(
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundImage: AssetImage(
-                        'assets/images/spa.jpeg'), // Replace with your image asset
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(50.0),
+                    child: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                        ? Image.network(
+                            profileImageUrl!,
+                            width: 100,
+                            height: 100,
+                            fit: BoxFit.cover,
+                          )
+                        : Container(
+                            width: 100,
+                            height: 100,
+                            color: Colors.white,
+                          ),
                   ),
                   const SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'Salon Name',
-                        style: TextStyle(
-                            fontSize: 24,
+                      Text(
+                        ownerName,
+                        style: const TextStyle(
+                            fontSize: 20,
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),
                       ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) =>  BookingPage(salonId: '', salonName: '',)),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFFAA4A30), // Sienna color
-                        ),
-                        child: const Text('Book Now',
-                            style: TextStyle(color: Colors.white)),
+                      Text(
+                        salonName,
+                        style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87),
                       ),
                     ],
                   ),
@@ -94,10 +149,10 @@ class _SalonDetailsPageState extends State<SalonDetails> {
                   GestureDetector(
                     onTap: _pickMedia,
                     child: Column(
-                      children: [
-                        const Icon(Icons.add_a_photo, color: Color(0xFFAA4A30)),
-                        const SizedBox(height: 4),
-                        const Text(
+                      children: const [
+                        Icon(Icons.add_a_photo, color: Color(0xFFAA4A30)),
+                        SizedBox(height: 4),
+                        Text(
                           'Add a post',
                           style: TextStyle(color: Color(0xFFAA4A30)),
                         ),
@@ -137,7 +192,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  ChatPage()),
+              MaterialPageRoute(builder: (context) => ChatPage()),
             );
           }
         },
@@ -159,8 +214,8 @@ class _SalonDetailsPageState extends State<SalonDetails> {
                         aspectRatio: 16 / 9,
                         child: VideoWidget(videoFile: File(item['imagePath']!)),
                       )
-                    : Image.file(
-                        File(item['imagePath']!),
+                    : Image.network(
+                        item['imagePath']!,
                         fit: BoxFit.cover,
                       ),
               ),

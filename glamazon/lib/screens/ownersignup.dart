@@ -57,7 +57,7 @@ class SalonOwnerSignUp extends StatelessWidget {
                     ).then((userCredential) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                        MaterialPageRoute(builder: (context) =>  EditProfilePage()),
                       );
                     }).catchError((error) {
                       print("Error: ${error.toString()}");

@@ -15,8 +15,16 @@ class _ProfilePageState extends State<ProfilePage> {
   String ownerName = '';
   String contact = '';
   String email = '';
-  String websiteUrl = '';
-  String aboutUs = '';
+  String workingDays = '';
+  String workingHours = '';
+  Map<String, bool> servicesOffered = {
+    'Hair styling and Cuts': false,
+    'Nails': false,
+    'Spa or Massage': false,
+    'Tattoo': false,
+    'Facial and Makeup': false,
+    'Piercing': false,
+  };
 
   @override
   void initState() {
@@ -43,8 +51,11 @@ class _ProfilePageState extends State<ProfilePage> {
         ownerName = data['ownerName'];
         contact = data['contact'];
         email = data['email'];
-        websiteUrl = data['websiteUrl'];
-        aboutUs = data['aboutUs'];
+        workingDays = data['workingDays'] ?? 'Monday to Saturday';
+        workingHours = data['workingHours'] ?? '';
+        if (data['servicesOffered'] != null) {
+          servicesOffered = Map<String, bool>.from(data['servicesOffered']);
+        }
       });
     }
   }
@@ -70,87 +81,97 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Header
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Profile Image
-                CircleAvatar(
-                  radius: 60,
-                  backgroundImage: profileImageUrl != null
-                      ? NetworkImage(profileImageUrl!)
-                      : AssetImage('assets/images/default.png'),
-                ),
-                const SizedBox(width: 20),
-                // Salon Name and Location
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        salonName,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black, // Sienna color
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        location,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Profile Header
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Image
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundImage: profileImageUrl != null
+                        ? NetworkImage(profileImageUrl!)
+                        : AssetImage('assets/images/default.png') as ImageProvider,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Profile Details
-            _buildDetailRow('Owner\'s Name', ownerName),
-            const SizedBox(height: 10),
-            _buildDetailRow('Contact', contact),
-            const SizedBox(height: 10),
-            _buildDetailRow('Email', email),
-            const SizedBox(height: 10),
-            _buildDetailRow('Website', websiteUrl),
-            const SizedBox(height: 10),
-            const Text(
-              'About Us',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.black, // Sienna color
+                  const SizedBox(width: 20),
+                  // Salon Name and Location
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          salonName,
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          location,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              aboutUs,
-              style: const TextStyle(fontSize: 16, color: Colors.black87),
-            ),
-            const SizedBox(height: 20),
-            // Redirect Button
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
+              const SizedBox(height: 20),
+              // Profile Details
+              _buildDetailRow('Owner\'s Name', ownerName),
+              const SizedBox(height: 10),
+              _buildDetailRow('Contact', contact),
+              const SizedBox(height: 10),
+              _buildDetailRow('Email', email),
+              const SizedBox(height: 10),
+              _buildDetailRow('Working Days', workingDays),
+              const SizedBox(height: 10),
+              _buildDetailRow('Working Hours', workingHours),
+              const SizedBox(height: 10),
+              const Text(
+                'Services Offered',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                ),
+              ),
+              const SizedBox(height: 5),
+              ...servicesOffered.entries
+                  .where((entry) => entry.value) // Only display services that are offered (true)
+                  .map((entry) {
+                    int index = servicesOffered.keys.toList().indexOf(entry.key) + 1;
+                    return Text(
+                      '$index. ${entry.key}',
+                      style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 158, 52, 3)), // Sienna color
+                    );
+                  })
+                  .toList(),
+              const SizedBox(height: 20),
+              // Redirect Button
+              Center(
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => SalonOwnerHome()),
                     );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                  ),
+                  child: Text('Go to Home'),
                 ),
-                child: Text('Go to Home'),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -162,16 +183,16 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Text(
           '$title: ',
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
-            color: Colors.black, // Sienna color
+            color: Color.fromARGB(255, 158, 52, 3), // Sienna color
           ),
         ),
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(fontSize: 16, color: Colors.black87),
+            style: TextStyle(fontSize: 16, color: Colors.black87),
           ),
         ),
       ],

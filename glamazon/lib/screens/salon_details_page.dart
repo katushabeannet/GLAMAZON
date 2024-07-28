@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
-import 'package:glamazon/screens/chat-page.dart';
-import 'package:glamazon/screens/profile_page.dart';
 import 'package:glamazon/screens/rating_page.dart';
-// Ensure proper import
-
-import 'salon_list.dart';
+import 'package:glamazon/models.dart'; // Correct import
 
 class SalonDetailPage extends StatefulWidget {
-  final Salon salon;
+  final Owner salon;
 
   SalonDetailPage({required this.salon});
 
@@ -28,7 +23,6 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     {'imagePath': 'assets/images/images (3).jpeg', 'name': 'Sleek Bob'},
     {'imagePath': 'assets/images/images (8).jpeg', 'name': 'Sleek Bob'},
     {'imagePath': 'assets/images/image03.jpg', 'name': 'Sleek Bob'},
-    // Add more images and names as needed
   ];
 
   @override
@@ -36,33 +30,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text('Glamazon', style: TextStyle(color: Colors.black)),
-            IconButton(
-              icon: Icon(Icons.person, color: Colors.black),
-              onPressed: () {
-                // Navigate to the ProfilePage
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ProfilePage(
-                      // profileImageUrl: '',
-                      // salonName: '',
-                      // location: '',
-                      // ownerName: '',
-                      // contact: '',
-                      // email: '',
-                      // websiteUrl: '',
-                      // aboutUs: '',
-                    ),
-                  ),
-                );
-              },
-            ),
-          ],
-        ),
+        title: Text('${widget.salon.salonName} Details', style: TextStyle(color: Colors.black)),
         backgroundColor: Color.fromARGB(179, 181, 81, 31), // Dark Sienna as base color
       ),
       body: SingleChildScrollView(
@@ -75,14 +43,16 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage(widget.salon.imageUrl),
+                    backgroundImage: widget.salon.profileImageUrl.isNotEmpty
+                        ? NetworkImage(widget.salon.profileImageUrl)
+                        : AssetImage('assets/images/default_profile.png') as ImageProvider,
                   ),
                   SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.salon.name,
+                        widget.salon.salonName,
                         style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -97,8 +67,8 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => BookingPage(
-                                          salonId: widget.salon.id,
-                                          salonName: widget.salon.name,
+                                          salonId: widget.salon.salonName,
+                                          salonName: widget.salon.salonName,
                                         )),
                               );
                             },
@@ -115,7 +85,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => RatingsPage(
-                                          salonId: '',
+                                          salonId: widget.salon.salonName,
                                         )),
                               );
                               if (result != null) {
@@ -137,73 +107,65 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 ],
               ),
               SizedBox(height: 20),
-              Text('Services: ${widget.salon.services.join(', ')}'),
+              Text(
+                'Location: ${widget.salon.location}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Contact: ${widget.salon.contact}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Working Days: ${widget.salon.workingDays}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Working Hours: ${widget.salon.workingHours}',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Services Offered:',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              buildServices(widget.salon.servicesOffered),
               SizedBox(height: 20),
               Text(
                 'Gallery',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 10),
               buildGallery(galleryItems),
               SizedBox(height: 20),
               Text(
                 'Ratings',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               buildRatingsSection(),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromARGB(179, 181, 81, 31),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-            backgroundColor: Colors.black, // Darker Sienna shade
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.chat),
-            label: 'Chat',
-            backgroundColor: Colors.black, // Darker Sienna shade
-          ),
-        ],
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.white70,
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => MyImageSlider()),
-            );
-          } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => ChatPage()),
-            );
-          }
-        },
-      ),
     );
   }
 
-  Widget buildGallery(List<Map<String, String>> galleryItems) {
+  Widget buildGallery(List<Map<String, String>> items) {
     return GridView.count(
+      crossAxisCount: 2,
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      children: galleryItems.map((item) {
+      children: items.map((item) {
         return Card(
           child: Column(
             children: [
               Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(4)),
-                  child: Image.asset(
-                    item['imagePath']!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
+                child: Image.asset(
+                  item['imagePath']!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Image.asset(
+                    'assets/images/placeholder_image.png',
                   ),
                 ),
               ),
@@ -218,6 +180,30 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
           ),
         );
       }).toList(),
+    );
+  }
+
+  Widget buildServices(Map<String, bool> servicesOffered) {
+    if (servicesOffered.isEmpty) {
+      return Text('No services available.');
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: servicesOffered.entries
+          .where((entry) => entry.value)
+          .map((entry) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2.0), // Reduced vertical padding
+              child: Row(
+                children: [
+                  Icon(Icons.check, color: Colors.green),
+                  SizedBox(width: 8),
+                  Text(entry.key),
+                ],
+              ),
+            );
+          })
+          .toList(),
     );
   }
 

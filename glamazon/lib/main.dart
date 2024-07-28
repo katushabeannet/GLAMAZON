@@ -41,7 +41,7 @@ class MyApplication extends StatelessWidget {
               // aboutUs:
                   // 'Welcome to Glamazon Salon, where beauty meets excellence!',
             ),
-        '/edit-profile': (context) => const EditProfilePage(),
+      '/edit-profile': (context) =>  EditProfilePage(),
       },
     );
   }

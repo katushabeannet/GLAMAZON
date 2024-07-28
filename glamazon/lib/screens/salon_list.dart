@@ -1,72 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/salon_details_page.dart';
+import 'package:glamazon/models.dart'; // Correct import
 
-// Salon Model
-class Salon {
-  final String id;
-  final String name;
-  final String imageUrl;
-  final List<String> services;
-
-  Salon({required this.id, required this.name, required this.imageUrl, required this.services});
-
-  factory Salon.fromJson(Map<String, dynamic> json) {
-    return Salon(
-      id: json['id'],
-      name: json['name'],
-      imageUrl: json['imageUrl'],
-      services: List<String>.from(json['services']),
-    );
-  }
-}
-
-// Dummy Data
-List<Salon> dummySalons = [
-  Salon(
-    id: '1',
-    name: 'Elegant Hair Salon',
-    imageUrl: 'assets/images/image10.jpeg',
-    services: ['Haircut', 'Coloring', 'Styling'],
-  ),
-  Salon(
-    id: '2',
-    name: 'Glamour Nails',
-    imageUrl: 'assets/images/image8.jpeg',
-    services: ['Manicure', 'Pedicure'],
-  ),
-  Salon(
-    id: '3',
-    name: 'Luxury Spa',
-    imageUrl: 'assets/images/image3.jpeg',
-    services: ['Massage', 'Facial', 'Tattoo'],
-  ),
-  Salon(
-    id: '4',
-    name: 'Alberto Unisex',
-    imageUrl: 'assets/images/image4.jpeg',
-    services: ['Massage', 'Facial', 'Tattoo', 'Haircut'],
-  ),
-  Salon(
-    id: '5',
-    name: 'Mama Kaviri',
-    imageUrl: 'assets/images/image2.jpeg',
-    services: ['Hairplaiting', 'Haircut'],
-  ),
-  Salon(
-    id: '6',
-    name: 'Hot looks',
-    imageUrl: 'assets/images/image5.jpeg',
-    services: ['Makeup', 'Tattoo', 'Manicure'],
-  ),
-  Salon(
-    id: '7',
-    name: 'Lady Bird',
-    imageUrl: 'assets/images/image2.jpeg',
-    services: ['Massage', 'Facial', 'Tattoo'],
-  ),
-];
-
-// Salon List Screen
 class SalonList extends StatefulWidget {
   const SalonList({super.key});
 
@@ -75,14 +11,15 @@ class SalonList extends StatefulWidget {
 }
 
 class _SalonListState extends State<SalonList> {
-  late Future<List<Salon>> futureSalons;
+  late Future<List<Owner>> ownersFuture;
+  List<Owner> allOwners = [];
+  List<Owner> filteredOwners = [];
   String selectedService = '';
 
   @override
   void initState() {
     super.initState();
-    // Using the dummy data instead of fetching from an API
-    futureSalons = Future.value(dummySalons);
+    ownersFuture = _fetchOwners();
   }
 
   @override
@@ -91,118 +28,178 @@ class _SalonListState extends State<SalonList> {
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('Salons'),
+        backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Dark Sienna as base color
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(50.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: [
-                _buildServiceButton('Haircut'),
-                _buildServiceButton('Nails'),
-                _buildServiceButton('Spa'),
-                _buildServiceButton('Tattoo'),
-                _buildServiceButton('HairStyling'),
-                _buildServiceButton('Makeup and Facial'),
-                _buildServiceButton('Piercings'),
-                // Add more buttons as needed
-              ],
-            ),
-          ),
+          preferredSize: const Size.fromHeight(60.0), // Adjust height as needed
+          child: _buildServiceButtons(),
         ),
       ),
-      body: FutureBuilder<List<Salon>>(
-        future: futureSalons,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No salons available'));
-          }
+      body: Column(
+        children: [
+          Expanded(
+            child: FutureBuilder<List<Owner>>(
+              future: ownersFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(child: Text('No salons available'));
+                }
 
-          List<Salon> salons = snapshot.data!;
-          if (selectedService.isNotEmpty) {
-            salons.sort((a, b) {
-              bool aHasService = a.services.contains(selectedService);
-              bool bHasService = b.services.contains(selectedService);
-              return aHasService == bHasService ? 0 : (aHasService ? -1 : 1);
-            });
-          }
+                if (allOwners.isEmpty) {
+                  allOwners = snapshot.data!;
+                  filteredOwners = allOwners;
+                }
 
-          return ListView.builder(
-            itemCount: salons.length,
-            itemBuilder: (context, index) {
-              return _buildSalonCard(salons[index]);
-            },
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildServiceButton(String service) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-            selectedService = service;
-          });
-        },
-        child: Text(service),
-      ),
-    );
-  }
-
-  Widget _buildSalonCard(Salon salon) {
-    return Card(
-      child: SizedBox(
-        width: double.infinity,
-        height: 270,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: double.infinity,
-              height: 200,
-              child: Image.asset(
-                salon.imageUrl,
-                fit: BoxFit.cover,
-              ),
+                return ListView.builder(
+                  itemCount: filteredOwners.length,
+                  itemBuilder: (context, index) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12.0), // Increased space
+                      child: _buildSalonCard(filteredOwners[index]),
+                    );
+                  },
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      salon.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<List<Owner>> _fetchOwners() async {
+    var ownerSnapshot = await FirebaseFirestore.instance.collection('owners').get();
+
+    List<Owner> owners = ownerSnapshot.docs.map((doc) {
+      return Owner.fromSnapshot(doc as DocumentSnapshot<Map<String, dynamic>>);
+    }).toList();
+
+    return owners;
+  }
+
+  Widget _buildServiceButtons() {
+    List<Map<String, dynamic>> services = [
+      {'name': 'Facial and Makeup', 'enabled': false},
+      {'name': 'Hair styling and Cuts', 'enabled': true},
+      {'name': 'Nails', 'enabled': true},
+      {'name': 'Piercing', 'enabled': false},
+      {'name': 'Spa or Massage', 'enabled': true},
+      {'name': 'Tattoo', 'enabled': true},
+    ];
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: services.map((service) {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              onPressed: service['enabled'] ? () => _filterSalons(service['name']) : null,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: selectedService == service['name']
+                    ? Colors.orange
+                    : Color.fromARGB(179, 181, 81, 31),
+              ),
+              child: Text(service['name']),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  void _filterSalons(String service) {
+    setState(() {
+      if (selectedService == service) {
+        // Clear filter if the same button is pressed again
+        selectedService = '';
+        filteredOwners = allOwners;
+      } else {
+        selectedService = service;
+        filteredOwners = allOwners.where((owner) {
+          return owner.servicesOffered[service] == true;
+        }).toList();
+        // Append the rest of the owners that don't have the service at the bottom
+        filteredOwners.addAll(allOwners.where((owner) {
+          return owner.servicesOffered[service] != true;
+        }).toList());
+      }
+    });
+  }
+
+  Widget _buildSalonCard(Owner owner) {
+    // Extract services as a comma-separated string
+    String services = owner.servicesOffered.entries
+        .where((entry) => entry.value)
+        .map((entry) => entry.key)
+        .join(', ');
+
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: double.infinity,
+            height: 200,
+            child: owner.profileImageUrl.isNotEmpty
+                ? Image.network(
+                    owner.profileImageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/default-salon.jpeg',
+                      fit: BoxFit.cover,
                     ),
+                  )
+                : Image.asset(
+                    'assets/images/default-salon.jpeg',
+                    fit: BoxFit.cover,
                   ),
-                  ElevatedButton(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  owner.salonName,
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                  ),
+                ),
+                Text(
+                  'Owner: ${owner.ownerName}',
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Services: $services',
+                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                ),
+                const SizedBox(height: 8),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: ElevatedButton(
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SalonDetailPage(salon: salon)),
+                        MaterialPageRoute(
+                          builder: (context) => SalonDetailPage(salon: owner),
+                        ),
                       );
                     },
-                    child: const Text('View Details'),
+                    child: Text('View Details'),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
-
-
-
-

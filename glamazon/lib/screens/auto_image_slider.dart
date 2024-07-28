@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:glamazon/screens/ownersignup.dart';
 import 'package:glamazon/screens/salon_list.dart';
-import 'package:glamazon/screens/signup.dart';
+import 'package:glamazon/screens/salonownerlogin.dart';
+import 'package:glamazon/screens/signin.dart';
 import 'package:glamazon/utils/colors.dart';
 
 void main() {
@@ -71,12 +72,12 @@ class _MyImageSliderState extends State<MyImageSlider> {
                 if (result == 'as a customer') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const signUp()),
+                    MaterialPageRoute(builder: (context) => const SignIn()),
                   );
                 } else if (result == 'add business') {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => SalonOwnerSignUp()),
+                    MaterialPageRoute(builder: (context) => SalonOwnerLogin()),
                   );
                 }
               },
@@ -109,18 +110,6 @@ class _MyImageSliderState extends State<MyImageSlider> {
                     image: AssetImage('assets/images/logo3.png'), // Replace with your logo asset path
                     height: 90,
                   ),
-                  // Column(
-                  //   children: [
-                  //     Icon(Icons.calendar_today, color: Color(0xFF882D17), size: 30),
-                  //     Text(
-                  //       'Appointments',
-                  //       style: TextStyle(
-                  //         fontSize: 12,
-                  //         fontWeight: FontWeight.bold,
-                  //       ),
-                  //     ),
-                  //   ],
-                  // ),
                 ],
               ),
             ),
