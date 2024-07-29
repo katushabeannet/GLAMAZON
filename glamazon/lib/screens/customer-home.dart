@@ -113,7 +113,7 @@ class _ImageSliderState extends State<ImageSlider> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => BookingPage(salonId: '', salonName: '',)),
+                            MaterialPageRoute(builder: (context) => BookingPage(salonName: '', salonId: '',)),
                           );
                         },
                       ),

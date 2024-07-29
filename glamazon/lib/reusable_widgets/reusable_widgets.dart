@@ -16,22 +16,22 @@ TextField reusableTextField(String text, IconData icon, bool isPassword,
     obscureText: isPassword,
     enableSuggestions: !isPassword,
     autocorrect: !isPassword,
-    cursorColor: Colors.white,
+    cursorColor: Colors.brown,
     style: TextStyle(
       color: Colors.white.withOpacity(0.9),
     ),
     decoration: InputDecoration(
         prefixIcon: Icon(
           icon,
-          color: Colors.white70,
+          color: Color.fromARGB(179, 249, 119, 32),
         ),
         labelText: text,
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.9),
+          color: Color.fromARGB(255, 234, 111, 66).withOpacity(0.9),
         ),
         filled: true,
         floatingLabelBehavior: FloatingLabelBehavior.never,
-        fillColor: Colors.white.withOpacity(0.3),
+        fillColor: Color.fromARGB(255, 240, 123, 81).withOpacity(0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: const BorderSide(width: 0, style: BorderStyle.none),

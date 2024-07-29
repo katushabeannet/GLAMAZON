@@ -1,7 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:glamazon/models.dart';
 import 'package:glamazon/screens/salon_details_page.dart';
-import 'package:glamazon/models.dart'; // Correct import
+// import 'package:glamazon/models.dart'; // Correct import
 
 class SalonList extends StatefulWidget {
   const SalonList({super.key});

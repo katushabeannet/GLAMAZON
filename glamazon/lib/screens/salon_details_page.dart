@@ -1,7 +1,9 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:glamazon/models.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/rating_page.dart';
-import 'package:glamazon/models.dart'; // Correct import
+// import 'package:glamazon/models.dart'; // Correct import
 
 class SalonDetailPage extends StatefulWidget {
   final Owner salon;
@@ -14,16 +16,31 @@ class SalonDetailPage extends StatefulWidget {
 
 class _SalonDetailPageState extends State<SalonDetailPage> {
   List<Map<String, dynamic>> ratings = [];
+  List<Map<String, dynamic>> galleryItems = [];
 
-  final List<Map<String, String>> galleryItems = [
-    {'imagePath': 'assets/images/haircut.jpeg', 'name': 'Glamorous Updo'},
-    {'imagePath': 'assets/images/makeup1.jpeg', 'name': 'Elegant Braids'},
-    {'imagePath': 'assets/images/images (1).jpeg', 'name': 'Classic Curls'},
-    {'imagePath': 'assets/images/images (2).jpeg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/images (3).jpeg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/images (8).jpeg', 'name': 'Sleek Bob'},
-    {'imagePath': 'assets/images/image03.jpg', 'name': 'Sleek Bob'},
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _fetchGallery();
+  }
+
+  Future<void> _fetchGallery() async {
+    var gallerySnapshot = await FirebaseFirestore.instance
+        .collection('owners_gallery')
+        .doc(widget.salon.id) // assuming salonId is the document ID in owners_gallery
+        .collection('gallery')
+        .get();
+
+    setState(() {
+      galleryItems = gallerySnapshot.docs.map((doc) {
+        return {
+          'name': doc['name'],
+          'timeTaken': doc['timeTaken'],
+          'url': doc['url'],
+        };
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,10 +83,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BookingPage(
-                                          salonId: widget.salon.salonName,
-                                          salonName: widget.salon.salonName,
-                                        )),
+                                    builder: (context) => BookingPage(salonId: '', salonName: '')),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -106,7 +120,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Location: ${widget.salon.location}',
                 style: TextStyle(fontSize: 16),
@@ -151,7 +165,10 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     );
   }
 
-  Widget buildGallery(List<Map<String, String>> items) {
+  Widget buildGallery(List<Map<String, dynamic>> items) {
+    if (items.isEmpty) {
+      return Text('No gallery items available.');
+    }
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
@@ -161,11 +178,15 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
           child: Column(
             children: [
               Expanded(
-                child: Image.asset(
-                  item['imagePath']!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Image.asset(
-                    'assets/images/placeholder_image.png',
+                child: Container(
+                  width: double.infinity,
+                  child: Image.network(
+                    item['url']!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      'assets/images/placeholder.jpg',
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
               ),
@@ -174,6 +195,13 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 child: Text(
                   item['name']!,
                   style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
+                child: Text(
+                  'Time taken: ${item['timeTaken']} hours',
+                  style: TextStyle(color: Colors.black54),
                 ),
               ),
             ],
@@ -196,8 +224,8 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
               padding: const EdgeInsets.symmetric(vertical: 2.0), // Reduced vertical padding
               child: Row(
                 children: [
-                  Icon(Icons.check, color: Colors.green),
-                  SizedBox(width: 8),
+                  const Icon(Icons.check, color: Colors.green),
+                 const SizedBox(width: 8),
                   Text(entry.key),
                 ],
               ),
