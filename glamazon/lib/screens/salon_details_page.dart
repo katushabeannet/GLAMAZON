@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/models.dart';
+import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
+import 'package:glamazon/screens/chat-page.dart';
 import 'package:glamazon/screens/rating_page.dart';
+ // Add this import
 
 class SalonDetailPage extends StatefulWidget {
   final Owner salon;
@@ -60,6 +63,28 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     });
   }
 
+  int _selectedIndex = 0;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      switch (index) {
+        case 0:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => MyImageSlider()),
+          );
+          break;
+        case 1:
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => UserChatPage()),
+          );
+          break;
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -101,7 +126,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BookingPage(salonId: '', salonName: '')),
+                                    builder: (context) => BookingPage(salonId: widget.salon.id, salonName: widget.salon.salonName)),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -177,6 +202,21 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
             ],
           ),
         ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.chat),
+            label: 'Chatroom',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.amber[800],
+        onTap: _onItemTapped,
       ),
     );
   }
