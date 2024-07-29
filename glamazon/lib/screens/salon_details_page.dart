@@ -126,7 +126,11 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    builder: (context) => BookingPage(salonId: widget.salon.id, salonName: widget.salon.salonName)),
+                                  builder: (context) => BookingPage(
+                                    salonId: widget.salon.id,
+                                    salonName: widget.salon.salonName,
+                                  ),
+                                ),
                               );
                             },
                             style: ElevatedButton.styleFrom(
@@ -134,6 +138,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                             ),
                             child: Text('Book Now', style: TextStyle(color: Colors.white)),
                           ),
+
                           SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () async {
