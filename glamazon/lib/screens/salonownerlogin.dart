@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:glamazon/screens/notification-deatails.dart';
 import 'package:glamazon/screens/salonownerhome%20copy.dart';
 import '../reusable_widgets/reusable_widgets.dart';
 import 'ownersignup.dart';
@@ -19,12 +18,8 @@ class SalonOwnerLogin extends StatelessWidget {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-            hexStringToColor("#C0724A"), // Very Light Sienna
-            hexStringToColor("#E0A680"), // Lighter Sienna
-            hexStringToColor("#E0A680") // Lightest Sienna
-          ], begin: Alignment.topCenter, end: Alignment.bottomCenter),
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 250, 227, 197), // Single background color
         ),
         child: SingleChildScrollView(
           child: Padding(
