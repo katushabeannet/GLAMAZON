@@ -83,10 +83,10 @@ class _SalonListState extends State<SalonList> {
 
   Widget _buildServiceButtons() {
     List<Map<String, dynamic>> services = [
-      {'name': 'Facial and Makeup', 'enabled': false},
+      {'name': 'Facial and Makeup', 'enabled': true},
       {'name': 'Hair styling and Cuts', 'enabled': true},
       {'name': 'Nails', 'enabled': true},
-      {'name': 'Piercing', 'enabled': false},
+      {'name': 'Piercing', 'enabled': true},
       {'name': 'Spa or Massage', 'enabled': true},
       {'name': 'Tattoo', 'enabled': true},
     ];

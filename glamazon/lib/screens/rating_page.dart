@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RatingsPage extends StatefulWidget {
   final String salonId;
@@ -13,14 +14,30 @@ class _RatingsPageState extends State<RatingsPage> {
   double _rating = 0.0;
   TextEditingController _commentController = TextEditingController();
 
+  void _saveRating() async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('salons')
+          .doc(widget.salonId)
+          .collection('ratings')
+          .add({
+        'rating': _rating,
+        'comment': _commentController.text,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+      print('Rating saved successfully');
+    } catch (e) {
+      print('Error saving rating: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('Rate Salon'),
-        backgroundColor:Color.fromARGB(179, 181, 81, 31)
-,
+        backgroundColor: Color.fromARGB(179, 181, 81, 31),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,9 +78,7 @@ class _RatingsPageState extends State<RatingsPage> {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                // Save the rating and comment
-                // In a real app, you would send this data to a backend service
-                // For now, just navigate back and display the rating
+                _saveRating();
                 Navigator.pop(context, {
                   'rating': _rating,
                   'comment': _commentController.text,

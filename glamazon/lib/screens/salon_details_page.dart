@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:glamazon/models.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/rating_page.dart';
-// import 'package:glamazon/models.dart'; // Correct import
 
 class SalonDetailPage extends StatefulWidget {
   final Owner salon;
@@ -22,12 +21,13 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
   void initState() {
     super.initState();
     _fetchGallery();
+    _fetchRatings();
   }
 
   Future<void> _fetchGallery() async {
     var gallerySnapshot = await FirebaseFirestore.instance
         .collection('owners_gallery')
-        .doc(widget.salon.id) // assuming salonId is the document ID in owners_gallery
+        .doc(widget.salon.id)
         .collection('gallery')
         .get();
 
@@ -42,13 +42,31 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     });
   }
 
+  Future<void> _fetchRatings() async {
+    var ratingsSnapshot = await FirebaseFirestore.instance
+        .collection('salons')
+        .doc(widget.salon.id)
+        .collection('ratings')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    setState(() {
+      ratings = ratingsSnapshot.docs.map((doc) {
+        return {
+          'rating': doc['rating'],
+          'comment': doc['comment'],
+        };
+      }).toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: Text('${widget.salon.salonName} Details', style: TextStyle(color: Colors.black)),
-        backgroundColor: Color.fromARGB(179, 181, 81, 31), // Dark Sienna as base color
+        backgroundColor: Color.fromARGB(179, 181, 81, 31),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -87,10 +105,9 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 164, 100, 68), // Sienna color
+                              backgroundColor: Color.fromARGB(255, 164, 100, 68),
                             ),
-                            child: Text('Book Now',
-                                style: TextStyle(color: Colors.white)),
+                            child: Text('Book Now', style: TextStyle(color: Colors.white)),
                           ),
                           SizedBox(width: 10),
                           ElevatedButton(
@@ -99,7 +116,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => RatingsPage(
-                                          salonId: widget.salon.salonName,
+                                          salonId: widget.salon.id,
                                         )),
                               );
                               if (result != null) {
@@ -109,10 +126,9 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 164, 100, 68), // Sienna color
+                              backgroundColor: Color.fromARGB(255, 164, 100, 68),
                             ),
-                            child: Text('Rate Us',
-                                style: TextStyle(color: Colors.white)),
+                            child: Text('Rate Us', style: TextStyle(color: Colors.white)),
                           ),
                         ],
                       ),
@@ -221,11 +237,11 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
           .where((entry) => entry.value)
           .map((entry) {
             return Padding(
-              padding: const EdgeInsets.symmetric(vertical: 2.0), // Reduced vertical padding
+              padding: const EdgeInsets.symmetric(vertical: 2.0),
               child: Row(
                 children: [
                   const Icon(Icons.check, color: Colors.green),
-                 const SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(entry.key),
                 ],
               ),
