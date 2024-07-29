@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/owner-gallery.dart';
+import 'package:glamazon/screens/ownerchat_page.dart';
 import 'package:glamazon/screens/profile_page.dart';
 import 'package:glamazon/screens/settings_owner.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'appointments_page.dart';
-import 'chat-page.dart';
 import 'notifications.dart';
 
 class SalonOwnerHome extends StatefulWidget {
@@ -146,7 +146,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ChatPage()),
+                        MaterialPageRoute(builder: (context) => OwnerChatPage()),
                       );
                     },
                   ),

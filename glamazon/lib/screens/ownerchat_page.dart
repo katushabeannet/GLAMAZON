@@ -5,17 +5,18 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
-class UserChatPage extends StatefulWidget {
+class OwnerChatPage extends StatefulWidget {
   @override
-  _UserChatPageState createState() => _UserChatPageState();
+  _OwnerChatPageState createState() => _OwnerChatPageState();
 }
 
-class _UserChatPageState extends State<UserChatPage> {
+class _OwnerChatPageState extends State<OwnerChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   final ImagePicker _picker = ImagePicker();
-  final String salonOwnerProfileImage = 'assets/images/dp.jpg'; // Placeholder salon owner profile image
+  final String ownerProfileImage = 'assets/images/dp.jpg'; // Placeholder owner profile image
 
   @override
   void initState() {
@@ -41,7 +42,7 @@ class _UserChatPageState extends State<UserChatPage> {
             'video': data['video'],
             'timestamp': (data['timestamp'] as Timestamp).toDate(),
             'isOwner': data['isOwner'] ?? false,
-            'userId': data['userId'],
+            'userId': data['userId'] ?? '',
             'messageId': doc.id,
             'replyToMessageId': data['replyToMessageId'],
           });
@@ -58,7 +59,7 @@ class _UserChatPageState extends State<UserChatPage> {
         'image': image != null ? await _uploadFile(image) : null,
         'video': video != null ? await _uploadFile(video) : null,
         'timestamp': FieldValue.serverTimestamp(),
-        'isOwner': false,
+        'isOwner': true,
         'userId': user.uid,
         'replyToMessageId': replyToMessageId,
       };
@@ -71,8 +72,19 @@ class _UserChatPageState extends State<UserChatPage> {
   }
 
   Future<String?> _uploadFile(File file) async {
-    // Implement file upload functionality here
-    return null;
+    try {
+      final storageReference = FirebaseStorage.instance
+          .ref()
+          .child('uploads/${DateTime.now().millisecondsSinceEpoch}_${file.uri.pathSegments.last}');
+      final uploadTask = storageReference.putFile(file);
+
+      final snapshot = await uploadTask.whenComplete(() {});
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      return downloadUrl;
+    } catch (e) {
+      print('Error uploading file: $e');
+      return null;
+    }
   }
 
   Future<void> _pickImage() async {
@@ -130,7 +142,7 @@ class _UserChatPageState extends State<UserChatPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('User Chat Room'),
+        title: Text('Owner Chat Room'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color
       ),
       body: Column(
@@ -183,20 +195,10 @@ class _UserChatPageState extends State<UserChatPage> {
                             backgroundImage: AssetImage('assets/images/user.png'),
                             radius: 20.0,
                           ),
-                        if (!isOwner)
-                          SizedBox(width: 10.0),
-                        if (isOwner)
-                          SizedBox(width: 10.0),
-                        if (isOwner)
-                          CircleAvatar(
-                            backgroundImage: AssetImage(salonOwnerProfileImage),
-                            radius: 20.0,
-                          ),
                         SizedBox(width: 10.0),
                         Expanded(
                           child: Column(
-                            crossAxisAlignment:
-                                isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                            crossAxisAlignment: isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                             children: [
                               Container(
                                 padding: EdgeInsets.all(10.0),
@@ -207,13 +209,12 @@ class _UserChatPageState extends State<UserChatPage> {
                                   borderRadius: BorderRadius.only(
                                     topLeft: Radius.circular(16),
                                     topRight: Radius.circular(16),
-                                    bottomLeft: Radius.circular(16),
-                                    bottomRight: Radius.circular(16),
+                                    bottomLeft: isOwner ? Radius.circular(16) : Radius.circular(0),
+                                    bottomRight: isOwner ? Radius.circular(0) : Radius.circular(16),
                                   ),
                                 ),
                                 child: Column(
-                                  crossAxisAlignment:
-                                      isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     message['text'].isNotEmpty
                                         ? Text(
@@ -227,10 +228,12 @@ class _UserChatPageState extends State<UserChatPage> {
                                             : message['video'] != null
                                                 ? Column(
                                                     children: [
-                                                      Icon(Icons.videocam, color: Colors.white),
+                                                      Icon(Icons.videocam,
+                                                          color: Colors.white),
                                                       Text(
                                                         'Video Message',
-                                                        style: TextStyle(color: Colors.white),
+                                                        style: TextStyle(
+                                                            color: Colors.white),
                                                       ),
                                                     ],
                                                   )
@@ -246,15 +249,18 @@ class _UserChatPageState extends State<UserChatPage> {
                                               ConnectionState.waiting) {
                                             return CircularProgressIndicator();
                                           }
-                                          if (snapshot.hasData && snapshot.data != null) {
-                                            final replyData =
-                                                snapshot.data!.data() as Map<String, dynamic>;
+                                          if (snapshot.hasData &&
+                                              snapshot.data != null) {
+                                            final replyData = snapshot.data!
+                                                    .data()
+                                                as Map<String, dynamic>;
                                             return Container(
                                               margin: EdgeInsets.only(top: 5.0),
                                               padding: EdgeInsets.all(8.0),
                                               decoration: BoxDecoration(
                                                 color: Colors.grey.shade300,
-                                                borderRadius: BorderRadius.circular(8.0),
+                                                borderRadius:
+                                                    BorderRadius.circular(8.0),
                                               ),
                                               child: Text(
                                                 replyData['text'] ?? '',
@@ -281,7 +287,12 @@ class _UserChatPageState extends State<UserChatPage> {
                             ],
                           ),
                         ),
-                        if (isOwner) SizedBox(width: 10.0),
+                        SizedBox(width: 10.0),
+                        if (isOwner)
+                          CircleAvatar(
+                            backgroundImage: AssetImage(ownerProfileImage),
+                            radius: 20.0,
+                          ),
                       ],
                     ),
                   ),
@@ -293,28 +304,19 @@ class _UserChatPageState extends State<UserChatPage> {
             padding: EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: Colors.white,
-              border: Border(
-                top: BorderSide(color: Colors.grey.shade200),
-              ),
+              border: Border(top: BorderSide(color: Colors.grey.shade300)),
             ),
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.photo),
+                  icon: Icon(Icons.attach_file),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
                       builder: (BuildContext context) {
-                        return Wrap(
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            ListTile(
-                              leading: Icon(Icons.photo_library),
-                              title: Text('Pick from gallery'),
-                              onTap: () {
-                                _pickImage();
-                                Navigator.of(context).pop();
-                              },
-                            ),
                             ListTile(
                               leading: Icon(Icons.camera_alt),
                               title: Text('Take a photo'),
