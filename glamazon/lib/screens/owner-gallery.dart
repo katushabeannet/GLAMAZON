@@ -215,8 +215,8 @@ class _SalonDetailsPageState extends State<SalonDetails> {
                       ),
                       GestureDetector(
                         onTap: _pickMedia,
-                        child: Column(
-                          children: const [
+                        child: const Column(
+                          children: [
                             Icon(Icons.add_a_photo, color: Color(0xFFAA4A30)),
                             SizedBox(height: 4),
                             Text(
@@ -265,7 +265,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UserChatPage()),
+              MaterialPageRoute(builder: (context) => const UserChatPage()),
             );
           }
         },
@@ -308,7 +308,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
 class VideoWidget extends StatelessWidget {
   final File videoFile;
 
-  const VideoWidget({required this.videoFile, Key? key}) : super(key: key);
+  const VideoWidget({required this.videoFile, super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -7,7 +7,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class ProfileEditScreen extends StatefulWidget {
-  const ProfileEditScreen({Key? key}) : super(key: key);
+  const ProfileEditScreen({super.key});
 
   @override
   _ProfileEditScreenState createState() => _ProfileEditScreenState();

@@ -10,6 +10,8 @@ import 'appointments_page.dart';
 import 'notifications.dart';
 
 class SalonOwnerHome extends StatefulWidget {
+  const SalonOwnerHome({super.key});
+
   @override
   _SalonOwnerHomeState createState() => _SalonOwnerHomeState();
 }
@@ -45,11 +47,11 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('My Salon'),
-        backgroundColor: Color.fromARGB(179, 181, 81, 31), // Matching the gradient colors
+        title: const Text('My Salon'),
+        backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Matching the gradient colors
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -70,7 +72,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                           color: Colors.white,
                         ),
                 ),
-                SizedBox(width: 16.0),
+                const SizedBox(width: 16.0),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -82,10 +84,10 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                         color: hexStringToColor("#C0724A"), // Matching color
                       ),
                     ),
-                    SizedBox(height: 4.0),
+                    const SizedBox(height: 4.0),
                     Text(
                       location,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16.0,
                         color: Colors.grey,
                       ),
@@ -94,7 +96,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                 ),
               ],
             ),
-            SizedBox(height: 20.0),
+            const SizedBox(height: 20.0),
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
@@ -109,7 +111,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ProfilePage(),
+                          builder: (context) => const ProfilePage(),
                         ),
                       );
                     },
@@ -134,7 +136,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SalonDetails(),
+                          builder: (context) => const SalonDetails(),
                         ),
                       );
                     },
@@ -146,7 +148,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                     () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => OwnerChatPage()),
+                        MaterialPageRoute(builder: (context) => const OwnerChatPage()),
                       );
                     },
                   ),
@@ -165,7 +167,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                   _buildGridButton(context, Icons.settings, 'Settings', () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SettingsOwner()),
+                      MaterialPageRoute(builder: (context) => const SettingsOwner()),
                     );
                   }),
                 ],
@@ -185,7 +187,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                   backgroundColor: hexStringToColor("#C0724A"), // Matching color
                   foregroundColor: Colors.white,
                 ),
-                child: Text('Logout'),
+                child: const Text('Logout'),
               ),
             ),
           ],
@@ -213,7 +215,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                 size: 40.0,
                 color: hexStringToColor("#089be3"), // Matching color
               ),
-              SizedBox(height: 10.0),
+              const SizedBox(height: 10.0),
               Text(
                 label,
                 textAlign: TextAlign.center,
@@ -237,7 +239,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
   Color hexStringToColor(String hexColor) {
     hexColor = hexColor.replaceAll("#", "");
     if (hexColor.length == 6) {
-      hexColor = "FF" + hexColor;
+      hexColor = "FF$hexColor";
     }
     if (hexColor.length == 8) {
       return Color(int.parse("0x$hexColor"));

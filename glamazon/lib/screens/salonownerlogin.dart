@@ -9,11 +9,13 @@ class SalonOwnerLogin extends StatelessWidget {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
 
+  SalonOwnerLogin({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Salon Login'),
+        title: const Text('Salon Login'),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -51,16 +53,16 @@ class SalonOwnerLogin extends StatelessWidget {
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => SalonOwnerHome()),
+                        MaterialPageRoute(builder: (context) => const SalonOwnerHome()),
                       );
                     } on FirebaseAuthException catch (e) {
                       if (e.code == 'user-not-found') {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('No user found for that email.')),
+                          const SnackBar(content: Text('No user found for that email.')),
                         );
                       } else if (e.code == 'wrong-password') {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Wrong password provided.')),
+                          const SnackBar(content: Text('Wrong password provided.')),
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -69,11 +71,11 @@ class SalonOwnerLogin extends StatelessWidget {
                       }
                     }
                   },
-                  child: Text('Login'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xff089be3),
                     foregroundColor: Colors.white,
                   ),
+                  child: const Text('Login'),
                 ),
                 signUpOption(context),
                 const SizedBox(

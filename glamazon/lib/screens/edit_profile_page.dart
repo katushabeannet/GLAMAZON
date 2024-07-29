@@ -99,9 +99,9 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _pickImage(ImageSource source) async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
     try {
-      final XFile? image = await _picker.pickImage(source: source);
+      final XFile? image = await picker.pickImage(source: source);
 
       if (image != null) {
         final File imageFile = File(image.path);
@@ -152,7 +152,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       if (user == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User is not authenticated')),
+          const SnackBar(content: Text('User is not authenticated')),
         );
         setState(() {
           _isLoading = false;
@@ -203,7 +203,7 @@ class EditProfilePageState extends State<EditProfilePage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) => ProfilePage(),
+              builder: (context) => const ProfilePage(),
             ),
           );
         }
@@ -328,7 +328,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                               });
                             },
                           );
-                        }).toList(),
+                        }),
                         const SizedBox(height: 20),
                         Center(
                           child: ElevatedButton(
@@ -346,9 +346,9 @@ class EditProfilePageState extends State<EditProfilePage> {
           if (_isLoading)
             Container(
               color: Colors.black54,
-              child: Center(
+              child: const Center(
                 child: CircularProgressIndicator(
-                  color: const Color(0xFFA0522D), // Sienna color
+                  color: Color(0xFFA0522D), // Sienna color
                 ),
               ),
             ),
@@ -374,15 +374,15 @@ class EditProfilePageState extends State<EditProfilePage> {
         prefixIcon: Icon(icon, color: const Color(0xFFA0522D)), // Brown color for the icon
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the border
+          borderSide: const BorderSide(color: Color(0xFFA0522D), width: 1.5), // Brown color for the border
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the focused border
+          borderSide: const BorderSide(color: Color(0xFFA0522D), width: 1.5), // Brown color for the focused border
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8.0),
-          borderSide: BorderSide(color: const Color(0xFFA0522D), width: 1.5), // Brown color for the enabled border
+          borderSide: const BorderSide(color: Color(0xFFA0522D), width: 1.5), // Brown color for the enabled border
         ),
       ),
       validator: (value) {

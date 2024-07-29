@@ -16,8 +16,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   bool _isDarkMode = false;
   bool _isVibrate = false;
-  String _notificationTone = 'Default Tone';
-  String _fontSize = 'Medium';
+  final String _notificationTone = 'Default Tone';
+  final String _fontSize = 'Medium';
   String _selectedLanguage = 'English';
   String _selectedRegion = 'US';
   String _wallpaperPath = ''; // Provide a default value

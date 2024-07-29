@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class RatingsPage extends StatefulWidget {
   final String salonId;
 
-  RatingsPage({required this.salonId});
+  const RatingsPage({super.key, required this.salonId});
 
   @override
   _RatingsPageState createState() => _RatingsPageState();
@@ -12,7 +12,7 @@ class RatingsPage extends StatefulWidget {
 
 class _RatingsPageState extends State<RatingsPage> {
   double _rating = 0.0;
-  TextEditingController _commentController = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
 
   void _saveRating() async {
     try {
@@ -36,19 +36,19 @@ class _RatingsPageState extends State<RatingsPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Rate Salon'),
-        backgroundColor: Color.fromARGB(179, 181, 81, 31),
+        title: const Text('Rate Salon'),
+        backgroundColor: const Color.fromARGB(179, 181, 81, 31),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Rate this Salon:',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(5, (index) {
@@ -66,16 +66,16 @@ class _RatingsPageState extends State<RatingsPage> {
                 );
               }),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             TextField(
               controller: _commentController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 labelText: 'Comment',
               ),
               maxLines: 3,
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _saveRating();
@@ -85,9 +85,9 @@ class _RatingsPageState extends State<RatingsPage> {
                 });
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFAA4A30),
+                backgroundColor: const Color(0xFFAA4A30),
               ),
-              child: Text('Submit', style: TextStyle(color: Colors.white)),
+              child: const Text('Submit', style: TextStyle(color: Colors.white)),
             ),
           ],
         ),

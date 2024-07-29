@@ -17,21 +17,21 @@ TextField reusableTextField(String text, IconData icon, bool isPassword,
     enableSuggestions: !isPassword,
     autocorrect: !isPassword,
     cursorColor: Colors.brown,
-    style: TextStyle(
+    style: const TextStyle(
       color: Colors.brown,
     ),
     decoration: InputDecoration(
         prefixIcon: Icon(
           icon,
-          color: Color.fromARGB(179, 249, 119, 32),
+          color: const Color.fromARGB(179, 249, 119, 32),
         ),
         labelText: text,
         labelStyle: TextStyle(
-          color: Color.fromARGB(255, 234, 111, 66).withOpacity(0.9),
+          color: const Color.fromARGB(255, 234, 111, 66).withOpacity(0.9),
         ),
         filled: true,
         floatingLabelBehavior: FloatingLabelBehavior.never,
-        fillColor: Color.fromARGB(255, 240, 123, 81).withOpacity(0.3),
+        fillColor: const Color.fromARGB(255, 240, 123, 81).withOpacity(0.3),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
           borderSide: const BorderSide(width: 0, style: BorderStyle.none),

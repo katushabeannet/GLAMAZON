@@ -19,16 +19,18 @@ class AppointmentsPage extends StatelessWidget {
     // Add more appointments here...
   ];
 
+ AppointmentsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Appointments'),
+        title: const Text('Appointments'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: ListView.builder(
           itemCount: appointments.length,
           itemBuilder: (context, index) {
@@ -48,12 +50,12 @@ class AppointmentsPage extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         appointment['userName'],
-                        style: TextStyle(
+                        style: const TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         'Contact: ${appointment['contactNumber']}',
                         style: TextStyle(
@@ -61,7 +63,7 @@ class AppointmentsPage extends StatelessWidget {
                           color: Colors.grey[700],
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         'Service: ${appointment['serviceName']}',
                         style: TextStyle(
@@ -69,7 +71,7 @@ class AppointmentsPage extends StatelessWidget {
                           color: Colors.grey[700],
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         'Date: ${DateFormat('yyyy-MM-dd').format(appointment['requestedTime'])} (${DateFormat('EEEE').format(appointment['requestedTime'])})',
                         style: TextStyle(
@@ -77,7 +79,7 @@ class AppointmentsPage extends StatelessWidget {
                           color: Colors.grey[700],
                         ),
                       ),
-                      SizedBox(height: 8.0),
+                      const SizedBox(height: 8.0),
                       Text(
                         'Time: ${DateFormat('hh:mm a').format(appointment['requestedTime'])}',
                         style:

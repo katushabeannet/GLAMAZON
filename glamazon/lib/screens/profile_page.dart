@@ -4,6 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:glamazon/screens/salonownerhome%20copy.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
@@ -36,7 +38,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User is not authenticated')),
+        const SnackBar(content: Text('User is not authenticated')),
       );
       return;
     }
@@ -66,10 +68,10 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('My Profile'),
-        backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+        backgroundColor: const Color.fromARGB(255, 158, 52, 3), // Sienna color
         actions: [
           IconButton(
-            icon: Icon(Icons.edit, color: Colors.white),
+            icon: const Icon(Icons.edit, color: Colors.white),
             onPressed: () async {
               final updatedData = await Navigator.pushNamed(context, '/edit-profile');
               if (updatedData != null) {
@@ -94,7 +96,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     radius: 60,
                     backgroundImage: profileImageUrl != null
                         ? NetworkImage(profileImageUrl!)
-                        : AssetImage('assets/images/default.png') as ImageProvider,
+                        : const AssetImage('assets/images/default.png') as ImageProvider,
                   ),
                   const SizedBox(width: 20),
                   // Salon Name and Location
@@ -104,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       children: [
                         Text(
                           salonName,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.bold,
                             color: Color.fromARGB(255, 158, 52, 3), // Sienna color
@@ -113,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         const SizedBox(height: 5),
                         Text(
                           location,
-                          style: TextStyle(
+                          style: const TextStyle(
                             fontSize: 20,
                             color: Colors.black54,
                           ),
@@ -150,10 +152,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     int index = servicesOffered.keys.toList().indexOf(entry.key) + 1;
                     return Text(
                       '$index. ${entry.key}',
-                      style: TextStyle(fontSize: 16, color: Color.fromARGB(255, 158, 52, 3)), // Sienna color
+                      style: const TextStyle(fontSize: 16, color: Color.fromARGB(255, 158, 52, 3)), // Sienna color
                     );
                   })
-                  .toList(),
+                  ,
               const SizedBox(height: 20),
               // Redirect Button
               Center(
@@ -161,13 +163,13 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SalonOwnerHome()),
+                      MaterialPageRoute(builder: (context) => const SalonOwnerHome()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 158, 52, 3), // Sienna color
+                    backgroundColor: const Color.fromARGB(255, 158, 52, 3), // Sienna color
                   ),
-                  child: Text('Go to Home'),
+                  child: const Text('Go to Home'),
                 ),
               ),
             ],
@@ -183,7 +185,7 @@ class _ProfilePageState extends State<ProfilePage> {
       children: [
         Text(
           '$title: ',
-          style: TextStyle(
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Color.fromARGB(255, 158, 52, 3), // Sienna color
@@ -192,7 +194,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Expanded(
           child: Text(
             value,
-            style: TextStyle(fontSize: 16, color: Colors.black87),
+            style: const TextStyle(fontSize: 16, color: Colors.black87),
           ),
         ),
       ],

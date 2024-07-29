@@ -12,22 +12,24 @@ class NotificationsPage extends StatelessWidget {
     {
       'title': 'Payment Received',
       'message': 'You have received a payment of \$50.00 from Jane Doe.',
-      'dateTime': DateTime.now().subtract(Duration(days: 1)),
+      'dateTime': DateTime.now().subtract(const Duration(days: 1)),
     },
     {
       'title': 'Review Received',
       'message': 'You have received a new review from John Smith.',
-      'dateTime': DateTime.now().subtract(Duration(days: 2)),
+      'dateTime': DateTime.now().subtract(const Duration(days: 2)),
     },
     // Add more notifications as needed
   ];
+
+   NotificationsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Notifications'),
+        title: const Text('Notifications'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color
       ),
       body: ListView.builder(
@@ -35,7 +37,7 @@ class NotificationsPage extends StatelessWidget {
         itemBuilder: (context, index) {
           return Card(
             elevation: 4.0,
-            margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+            margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
             child: ListTile(
               leading: Icon(Icons.notifications,
                   color: hexStringToColor("#089be3")), // Matching color
@@ -49,7 +51,7 @@ class NotificationsPage extends StatelessWidget {
               ),
               subtitle: Text(
                 notifications[index]['message']!,
-                style: TextStyle(
+                style: const TextStyle(
                   fontSize: 16.0,
                 ),
                 maxLines: 1,
@@ -79,7 +81,7 @@ class NotificationsPage extends StatelessWidget {
 Color hexStringToColor(String hexColor) {
   hexColor = hexColor.toUpperCase().replaceAll("#", "");
   if (hexColor.length == 6) {
-    hexColor = "FF" + hexColor;
+    hexColor = "FF$hexColor";
   }
   return Color(int.parse(hexColor, radix: 16));
 }

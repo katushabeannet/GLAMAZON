@@ -2,10 +2,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
-import 'package:glamazon/screens/booking_page.dart';
+// import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/profile-details.dart';
 import 'package:glamazon/screens/profile-edit.dart';
 import 'package:glamazon/screens/salon_list.dart';
+import 'package:glamazon/screens/user_appointments.dart';
 import 'package:glamazon/utils/colors.dart';
 
 void main() {
@@ -113,7 +114,7 @@ class _ImageSliderState extends State<ImageSlider> {
                         onPressed: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) => BookingPage(salonName: '', salonId: '',)),
+                            MaterialPageRoute(builder: (context) => const UserAppointmentsPage()),
                           );
                         },
                       ),

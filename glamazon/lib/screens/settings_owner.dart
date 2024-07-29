@@ -3,6 +3,8 @@ import 'package:glamazon/screens/notification-deatails.dart';
 // import '../utils/colors.dart';
 
 class SettingsOwner extends StatefulWidget {
+  const SettingsOwner({super.key});
+
   @override
   _SettingsPageState createState() => _SettingsPageState();
 }
@@ -17,22 +19,22 @@ class _SettingsPageState extends State<SettingsOwner> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           ListTile(
-            title: Text('Account'),
+            title: const Text('Account'),
             leading: Icon(Icons.person, color: hexStringToColor("#C0724A")),
             onTap: () {
               // Navigate to account settings
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Notifications'),
+            title: const Text('Notifications'),
             leading:
                 Icon(Icons.notifications, color: hexStringToColor("#C0724A")),
             trailing: Switch(
@@ -44,9 +46,9 @@ class _SettingsPageState extends State<SettingsOwner> {
               },
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Dark Mode'),
+            title: const Text('Dark Mode'),
             leading:
                 Icon(Icons.brightness_6, color: hexStringToColor("#C0724A")),
             trailing: Switch(
@@ -58,9 +60,9 @@ class _SettingsPageState extends State<SettingsOwner> {
               },
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Language'),
+            title: const Text('Language'),
             leading: Icon(Icons.language, color: hexStringToColor("#C0724A")),
             trailing: DropdownButton<String>(
               value: _language,
@@ -78,25 +80,25 @@ class _SettingsPageState extends State<SettingsOwner> {
               }).toList(),
             ),
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Privacy'),
+            title: const Text('Privacy'),
             leading: Icon(Icons.lock, color: hexStringToColor("#C0724A")),
             onTap: () {
               // Navigate to privacy settings
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('About'),
+            title: const Text('About'),
             leading: Icon(Icons.info, color: hexStringToColor("#C0724A")),
             onTap: () {
               // Navigate to about page
             },
           ),
-          Divider(),
+          const Divider(),
           ListTile(
-            title: Text('Logout'),
+            title: const Text('Logout'),
             leading: Icon(Icons.logout, color: hexStringToColor("#C0724A")),
             onTap: () {
               // Handle logout

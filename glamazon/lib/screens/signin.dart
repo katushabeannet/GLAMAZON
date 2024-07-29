@@ -23,7 +23,7 @@ class _SignInState extends State<SignIn> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           color: Color.fromARGB(255, 250, 227, 197), // Single background color
         ),
         child: SingleChildScrollView(

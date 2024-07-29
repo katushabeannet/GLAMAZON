@@ -30,7 +30,7 @@ class MyApplication extends StatelessWidget {
       home: const Splash(),
       debugShowCheckedModeBanner: false,
       routes: {
-        '/profile': (context) => ProfilePage(
+        '/profile': (context) => const ProfilePage(
               // profileImageUrl: 'https://example.com/profile.jpg',
               // salonName: 'Glamazon Salon',
               // location: '123 Beauty Street, Glamour City',
@@ -41,7 +41,7 @@ class MyApplication extends StatelessWidget {
               // aboutUs:
                   // 'Welcome to Glamazon Salon, where beauty meets excellence!',
             ),
-      '/edit-profile': (context) =>  EditProfilePage(),
+      '/edit-profile': (context) =>  const EditProfilePage(),
       },
     );
   }

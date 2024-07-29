@@ -10,6 +10,8 @@ class SalonOwnerSignUp extends StatelessWidget {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _confirmPasswordTextController = TextEditingController();
 
+  SalonOwnerSignUp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +54,7 @@ class SalonOwnerSignUp extends StatelessWidget {
                     ).then((userCredential) {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) =>  EditProfilePage()),
+                        MaterialPageRoute(builder: (context) =>  const EditProfilePage()),
                       );
                     }).catchError((error) {
                       print("Error: ${error.toString()}");

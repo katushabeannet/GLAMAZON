@@ -102,7 +102,7 @@ class _SalonListState extends State<SalonList> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: selectedService == service['name']
                     ? Colors.orange
-                    : Color.fromARGB(179, 181, 81, 31),
+                    : const Color.fromARGB(179, 181, 81, 31),
               ),
               child: Text(service['name']),
             ),
@@ -166,7 +166,7 @@ class _SalonListState extends State<SalonList> {
               children: [
                 Text(
                   owner.salonName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                     color: Color.fromARGB(255, 158, 52, 3), // Sienna color
@@ -174,12 +174,12 @@ class _SalonListState extends State<SalonList> {
                 ),
                 Text(
                   'Owner: ${owner.ownerName}',
-                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                  style: const TextStyle(fontSize: 16, color: Colors.black54),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Services: $services',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
+                  style: const TextStyle(fontSize: 14, color: Colors.black54),
                 ),
                 const SizedBox(height: 8),
                 Align(
@@ -193,7 +193,7 @@ class _SalonListState extends State<SalonList> {
                         ),
                       );
                     },
-                    child: Text('View Details'),
+                    child: const Text('View Details'),
                   ),
                 ),
               ],

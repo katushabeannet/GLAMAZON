@@ -22,7 +22,7 @@ class AppTheme {
       primaryColor: customColor,
       appBarTheme: AppBarTheme(
         backgroundColor: lighterColor7,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: customColor,
@@ -31,16 +31,16 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(lighterColor7),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          backgroundColor: WidgetStateProperty.all<Color>(lighterColor7),
+          foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          side: MaterialStateProperty.all<BorderSide>(
+          side: WidgetStateProperty.all<BorderSide>(
             BorderSide(color: lighterColor5),
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(lighterColor5),
+          foregroundColor: WidgetStateProperty.all<Color>(lighterColor5),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -49,8 +49,8 @@ class AppTheme {
       textTheme: TextTheme(
         headlineLarge: TextStyle(color: lighterColor8),
         headlineMedium: TextStyle(color: lighterColor7),
-        bodySmall: TextStyle(color: Colors.black),
-        bodyMedium: TextStyle(color: Colors.black),
+        bodySmall: const TextStyle(color: Colors.black),
+        bodyMedium: const TextStyle(color: Colors.black),
       ),
       iconTheme: IconThemeData(color: lighterColor6),
     );
@@ -63,7 +63,7 @@ class AppTheme {
       primaryColor: customColor,
       appBarTheme: AppBarTheme(
         backgroundColor: lighterColor6,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         selectedItemColor: customColor,
@@ -72,16 +72,16 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.all<Color>(lighterColor7),
-          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          backgroundColor: WidgetStateProperty.all<Color>(lighterColor7),
+          foregroundColor: WidgetStateProperty.all<Color>(Colors.white),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: ButtonStyle(
-          side: MaterialStateProperty.all<BorderSide>(
+          side: WidgetStateProperty.all<BorderSide>(
             BorderSide(color: lighterColor5),
           ),
-          foregroundColor: MaterialStateProperty.all<Color>(lighterColor5),
+          foregroundColor: WidgetStateProperty.all<Color>(lighterColor5),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -90,8 +90,8 @@ class AppTheme {
       textTheme: TextTheme(
         headlineLarge: TextStyle(color: lighterColor8),
         headlineMedium: TextStyle(color: lighterColor7),
-        bodyMedium: TextStyle(color: Colors.white),
-        bodySmall: TextStyle(color: Colors.white),
+        bodyMedium: const TextStyle(color: Colors.white),
+        bodySmall: const TextStyle(color: Colors.white),
       ),
       iconTheme: IconThemeData(color: lighterColor6),
     );

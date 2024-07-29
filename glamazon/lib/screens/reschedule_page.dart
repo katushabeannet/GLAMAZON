@@ -6,7 +6,7 @@ class ReschedulePage extends StatefulWidget {
   final String salonName;
   final Map<String, dynamic> booking;
 
-  ReschedulePage({
+  const ReschedulePage({super.key, 
     required this.salonId,
     required this.salonName,
     required this.booking,
@@ -44,19 +44,19 @@ class _ReschedulePageState extends State<ReschedulePage> {
               title: Text(newStartDate == null
                   ? 'Select New Date'
                   : DateFormat('yyyy-MM-dd').format(newStartDate!)),
-              trailing: Icon(Icons.calendar_today),
+              trailing: const Icon(Icons.calendar_today),
               onTap: _selectNewDate,
             ),
             if (newStartDate != null)
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ListTile(
                     title: Text(newStartTime == null
                         ? 'Select New Start Time'
                         : DateFormat('kk:mm').format(newStartTime!)),
-                    trailing: Icon(Icons.access_time),
+                    trailing: const Icon(Icons.access_time),
                     onTap: _selectNewTime,
                   ),
                   if (newStartTime != null)
@@ -64,15 +64,15 @@ class _ReschedulePageState extends State<ReschedulePage> {
                       padding: const EdgeInsets.only(top: 10),
                       child: Text(
                         'End Time: ${DateFormat('kk:mm').format(newEndTime!)}',
-                        style: TextStyle(fontSize: 16),
+                        style: const TextStyle(fontSize: 16),
                       ),
                     ),
                 ],
               ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _rescheduleAppointment,
-              child: Text('Confirm Reschedule'),
+              child: const Text('Confirm Reschedule'),
             ),
           ],
         ),

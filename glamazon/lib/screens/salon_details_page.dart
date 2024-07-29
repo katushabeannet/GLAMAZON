@@ -1,16 +1,16 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/models.dart';
-import 'package:glamazon/screens/auto_image_slider.dart';
 import 'package:glamazon/screens/booking_page.dart';
 import 'package:glamazon/screens/chat-page.dart';
+import 'package:glamazon/screens/customer-home.dart';
 import 'package:glamazon/screens/rating_page.dart';
  // Add this import
 
 class SalonDetailPage extends StatefulWidget {
   final Owner salon;
 
-  SalonDetailPage({required this.salon});
+  const SalonDetailPage({super.key, required this.salon});
 
   @override
   _SalonDetailPageState createState() => _SalonDetailPageState();
@@ -72,13 +72,13 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
         case 0:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => MyImageSlider()),
+            MaterialPageRoute(builder: (context) => const ImageSlider()),
           );
           break;
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => UserChatPage()),
+            MaterialPageRoute(builder: (context) => const UserChatPage()),
           );
           break;
       }
@@ -90,8 +90,8 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('${widget.salon.salonName} Details', style: TextStyle(color: Colors.black)),
-        backgroundColor: Color.fromARGB(179, 181, 81, 31),
+        title: Text('${widget.salon.salonName} Details', style: const TextStyle(color: Colors.black)),
+        backgroundColor: const Color.fromARGB(179, 181, 81, 31),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -105,9 +105,9 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                     radius: 50,
                     backgroundImage: widget.salon.profileImageUrl.isNotEmpty
                         ? NetworkImage(widget.salon.profileImageUrl)
-                        : AssetImage('assets/images/default_profile.png') as ImageProvider,
+                        : const AssetImage('assets/images/default_profile.png') as ImageProvider,
                   ),
-                  SizedBox(width: 20),
+                  const SizedBox(width: 20),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -118,7 +118,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                             fontWeight: FontWeight.bold,
                             color: Colors.black87),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Row(
                         children: [
                           ElevatedButton(
@@ -134,12 +134,12 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               );
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 164, 100, 68),
+                              backgroundColor: const Color.fromARGB(255, 164, 100, 68),
                             ),
-                            child: Text('Book Now', style: TextStyle(color: Colors.white)),
+                            child: const Text('Book Now', style: TextStyle(color: Colors.white)),
                           ),
 
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           ElevatedButton(
                             onPressed: () async {
                               final result = await Navigator.push(
@@ -156,9 +156,9 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                               }
                             },
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Color.fromARGB(255, 164, 100, 68),
+                              backgroundColor: const Color.fromARGB(255, 164, 100, 68),
                             ),
-                            child: Text('Rate Us', style: TextStyle(color: Colors.white)),
+                            child: const Text('Rate Us', style: TextStyle(color: Colors.white)),
                           ),
                         ],
                       ),
@@ -169,37 +169,37 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
               const SizedBox(height: 20),
               Text(
                 'Location: ${widget.salon.location}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Contact: ${widget.salon.contact}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Working Days: ${widget.salon.workingDays}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text(
                 'Working Hours: ${widget.salon.workingHours}',
-                style: TextStyle(fontSize: 16),
+                style: const TextStyle(fontSize: 16),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Services Offered:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               buildServices(widget.salon.servicesOffered),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Gallery',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               buildGallery(galleryItems),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Ratings',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
@@ -228,18 +228,18 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
 
   Widget buildGallery(List<Map<String, dynamic>> items) {
     if (items.isEmpty) {
-      return Text('No gallery items available.');
+      return const Text('No gallery items available.');
     }
     return GridView.count(
       crossAxisCount: 2,
       shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(),
+      physics: const NeverScrollableScrollPhysics(),
       children: items.map((item) {
         return Card(
           child: Column(
             children: [
               Expanded(
-                child: Container(
+                child: SizedBox(
                   width: double.infinity,
                   child: Image.network(
                     item['url']!,
@@ -255,14 +255,14 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                 padding: const EdgeInsets.all(8.0),
                 child: Text(
                   item['name']!,
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Text(
                   'Time taken: ${item['timeTaken']} hours',
-                  style: TextStyle(color: Colors.black54),
+                  style: const TextStyle(color: Colors.black54),
                 ),
               ),
             ],
@@ -274,7 +274,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
 
   Widget buildServices(Map<String, bool> servicesOffered) {
     if (servicesOffered.isEmpty) {
-      return Text('No services available.');
+      return const Text('No services available.');
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -298,12 +298,12 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
 
   Widget buildRatingsSection() {
     if (ratings.isEmpty) {
-      return Text('No ratings yet.');
+      return const Text('No ratings yet.');
     }
     return Column(
       children: ratings.map((rating) {
         return ListTile(
-          leading: Icon(Icons.star, color: Colors.amber),
+          leading: const Icon(Icons.star, color: Colors.amber),
           title: Text('Rating: ${rating['rating']}'),
           subtitle: Text(rating['comment'] ?? 'No comment provided'),
         );

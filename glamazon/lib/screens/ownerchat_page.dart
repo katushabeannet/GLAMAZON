@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class OwnerChatPage extends StatefulWidget {
+  const OwnerChatPage({super.key});
+
   @override
   _OwnerChatPageState createState() => _OwnerChatPageState();
 }
@@ -142,7 +144,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: Text('Owner Chat Room'),
+        title: const Text('Owner Chat Room'),
         backgroundColor: hexStringToColor("#C0724A"), // Matching color
       ),
       body: Column(
@@ -161,10 +163,10 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text('Reply to message'),
+                          title: const Text('Reply to message'),
                           content: TextField(
                             controller: _messageController,
-                            decoration: InputDecoration(
+                            decoration: const InputDecoration(
                               hintText: 'Enter your reply',
                             ),
                           ),
@@ -177,7 +179,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                   Navigator.of(context).pop();
                                 }
                               },
-                              child: Text('Send'),
+                              child: const Text('Send'),
                             ),
                           ],
                         );
@@ -185,32 +187,32 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                     );
                   },
                   child: Container(
-                    margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                     child: Row(
                       mainAxisAlignment: isOwner ? MainAxisAlignment.end : MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (!isOwner)
-                          CircleAvatar(
+                          const CircleAvatar(
                             backgroundImage: AssetImage('assets/images/user.png'),
                             radius: 20.0,
                           ),
-                        SizedBox(width: 10.0),
+                        const SizedBox(width: 10.0),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                             children: [
                               Container(
-                                padding: EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(10.0),
                                 decoration: BoxDecoration(
                                   color: isOwner
                                       ? hexStringToColor("#089be3")
                                       : hexStringToColor("#C0724A"),
                                   borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                    bottomLeft: isOwner ? Radius.circular(16) : Radius.circular(0),
-                                    bottomRight: isOwner ? Radius.circular(0) : Radius.circular(16),
+                                    topLeft: const Radius.circular(16),
+                                    topRight: const Radius.circular(16),
+                                    bottomLeft: isOwner ? const Radius.circular(16) : const Radius.circular(0),
+                                    bottomRight: isOwner ? const Radius.circular(0) : const Radius.circular(16),
                                   ),
                                 ),
                                 child: Column(
@@ -219,14 +221,14 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                     message['text'].isNotEmpty
                                         ? Text(
                                             message['text'],
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               color: Colors.white,
                                             ),
                                           )
                                         : message['image'] != null
                                             ? Image.network(message['image'])
                                             : message['video'] != null
-                                                ? Column(
+                                                ? const Column(
                                                     children: [
                                                       Icon(Icons.videocam,
                                                           color: Colors.white),
@@ -237,7 +239,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                                       ),
                                                     ],
                                                   )
-                                                : SizedBox.shrink(),
+                                                : const SizedBox.shrink(),
                                     if (message['replyToMessageId'] != null)
                                       FutureBuilder<DocumentSnapshot>(
                                         future: FirebaseFirestore.instance
@@ -247,7 +249,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                         builder: (context, snapshot) {
                                           if (snapshot.connectionState ==
                                               ConnectionState.waiting) {
-                                            return CircularProgressIndicator();
+                                            return const CircularProgressIndicator();
                                           }
                                           if (snapshot.hasData &&
                                               snapshot.data != null) {
@@ -255,8 +257,8 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                                     .data()
                                                 as Map<String, dynamic>;
                                             return Container(
-                                              margin: EdgeInsets.only(top: 5.0),
-                                              padding: EdgeInsets.all(8.0),
+                                              margin: const EdgeInsets.only(top: 5.0),
+                                              padding: const EdgeInsets.all(8.0),
                                               decoration: BoxDecoration(
                                                 color: Colors.grey.shade300,
                                                 borderRadius:
@@ -264,22 +266,22 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                               ),
                                               child: Text(
                                                 replyData['text'] ?? '',
-                                                style: TextStyle(
+                                                style: const TextStyle(
                                                   color: Colors.black87,
                                                 ),
                                               ),
                                             );
                                           }
-                                          return SizedBox.shrink();
+                                          return const SizedBox.shrink();
                                         },
                                       ),
                                   ],
                                 ),
                               ),
-                              SizedBox(height: 5.0),
+                              const SizedBox(height: 5.0),
                               Text(
                                 _formatTime(message['timestamp']),
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 12.0,
                                   color: Colors.black54,
                                 ),
@@ -287,7 +289,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                             ],
                           ),
                         ),
-                        SizedBox(width: 10.0),
+                        const SizedBox(width: 10.0),
                         if (isOwner)
                           CircleAvatar(
                             backgroundImage: AssetImage(ownerProfileImage),
@@ -301,7 +303,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
             ),
           ),
           Container(
-            padding: EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(8.0),
             decoration: BoxDecoration(
               color: Colors.white,
               border: Border(top: BorderSide(color: Colors.grey.shade300)),
@@ -309,7 +311,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
             child: Row(
               children: [
                 IconButton(
-                  icon: Icon(Icons.attach_file),
+                  icon: const Icon(Icons.attach_file),
                   onPressed: () {
                     showModalBottomSheet(
                       context: context,
@@ -318,24 +320,24 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ListTile(
-                              leading: Icon(Icons.camera_alt),
-                              title: Text('Take a photo'),
+                              leading: const Icon(Icons.camera_alt),
+                              title: const Text('Take a photo'),
                               onTap: () {
                                 _takePhoto();
                                 Navigator.of(context).pop();
                               },
                             ),
                             ListTile(
-                              leading: Icon(Icons.video_library),
-                              title: Text('Pick video from gallery'),
+                              leading: const Icon(Icons.video_library),
+                              title: const Text('Pick video from gallery'),
                               onTap: () {
                                 _pickVideo();
                                 Navigator.of(context).pop();
                               },
                             ),
                             ListTile(
-                              leading: Icon(Icons.videocam),
-                              title: Text('Record a video'),
+                              leading: const Icon(Icons.videocam),
+                              title: const Text('Record a video'),
                               onTap: () {
                                 _recordVideo();
                                 Navigator.of(context).pop();
@@ -350,14 +352,14 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       hintText: 'Type a message...',
                       border: InputBorder.none,
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     final messageText = _messageController.text.trim();
                     if (messageText.isNotEmpty) {
