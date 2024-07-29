@@ -35,7 +35,7 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
 
       var appointmentsSnapshot = await FirebaseFirestore.instance
           .collection('appointments')
-          .where('userId', isEqualTo: user.uid) // Ensure this field exists in the appointments collection
+          .where('userId', isEqualTo: user.uid)
           .get();
 
       setState(() {
@@ -44,6 +44,7 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
           return {
             'id': doc.id,
             'service': data['service'],
+            'salonName': data['salonName'] ?? 'Unknown Salon',
             'date': (data['date'] as Timestamp).toDate(),
             'time': TimeOfDay(
               hour: data['time']['hour'],
@@ -130,7 +131,7 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
                       itemBuilder: (context, index) {
                         final appointment = appointments[index];
                         return Card(
-                          color: Colors.transparent,
+                          margin: const EdgeInsets.only(bottom: 16.0),
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(
                               color: Color.fromARGB(255, 164, 100, 68),
@@ -143,12 +144,26 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  appointment['service'],
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Color.fromARGB(255, 164, 100, 68),
-                                  ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      appointment['service'],
+                                      style: const TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color.fromARGB(255, 164, 100, 68),
+                                      ),
+                                    ),
+                                    Text(
+                                      appointment['salonName'],
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                        color: Color.fromARGB(255, 121, 85, 72),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 const SizedBox(height: 10.0),
                                 Text(

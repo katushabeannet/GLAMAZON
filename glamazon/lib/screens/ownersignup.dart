@@ -1,16 +1,21 @@
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:glamazon/reusable_widgets/reusable_widgets.dart';
 import 'package:glamazon/screens/edit_profile_page.dart';
 import 'package:glamazon/screens/salonownerlogin.dart';
 
-class SalonOwnerSignUp extends StatelessWidget {
+class SalonOwnerSignUp extends StatefulWidget {
+  const SalonOwnerSignUp({super.key});
+
+  @override
+  _SalonOwnerSignUpState createState() => _SalonOwnerSignUpState();
+}
+
+class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _confirmPasswordTextController = TextEditingController();
-
-  SalonOwnerSignUp({super.key});
+  bool _isLoading = false; // Added variable to manage loading state
 
   @override
   Widget build(BuildContext context) {
@@ -46,25 +51,37 @@ class SalonOwnerSignUp extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                signInSignUpButton(context, false, () {
-                  if (_passwordTextController.text == _confirmPasswordTextController.text) {
-                    FirebaseAuth.instance.createUserWithEmailAndPassword(
-                      email: _emailTextController.text,
-                      password: _passwordTextController.text,
-                    ).then((userCredential) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  const EditProfilePage()),
-                      );
-                    }).catchError((error) {
-                      print("Error: ${error.toString()}");
-                    });
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Passwords do not match')),
-                    );
-                  }
-                }),
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : signInSignUpButton(context, false, () {
+                        if (_passwordTextController.text == _confirmPasswordTextController.text) {
+                          setState(() {
+                            _isLoading = true; // Start loading
+                          });
+                          FirebaseAuth.instance.createUserWithEmailAndPassword(
+                            email: _emailTextController.text,
+                            password: _passwordTextController.text,
+                          ).then((userCredential) {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const EditProfilePage()),
+                            );
+                          }).catchError((error) {
+                            print("Error: ${error.toString()}");
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Error: ${error.toString()}')),
+                            );
+                          }).whenComplete(() {
+                            setState(() {
+                              _isLoading = false; // Stop loading
+                            });
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Passwords do not match')),
+                          );
+                        }
+                      }),
                 signUpOption(context),
                 const SizedBox(
                   height: 40,

@@ -20,6 +20,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
   String salonName = '';
   String location = '';
   String? profileImageUrl;
+  bool _isLoading = true; // Added variable to manage loading state
 
   @override
   void initState() {
@@ -28,17 +29,26 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
   }
 
   Future<void> _fetchSalonDetails() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final profileDoc = await FirebaseFirestore.instance.collection('owners').doc(user.uid).get();
-      final data = profileDoc.data();
-      if (data != null) {
-        setState(() {
-          salonName = data['salonName'] ?? 'Salon Name';
-          location = data['location'] ?? 'Location';
-          profileImageUrl = data['profileImageUrl'];
-        });
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final profileDoc = await FirebaseFirestore.instance.collection('owners').doc(user.uid).get();
+        final data = profileDoc.data();
+        if (data != null) {
+          setState(() {
+            salonName = data['salonName'] ?? 'Salon Name';
+            location = data['location'] ?? 'Location';
+            profileImageUrl = data['profileImageUrl'];
+          });
+        }
       }
+    } catch (e) {
+      print('Error fetching salon details: $e');
+      // Optionally, you can show an error message to the user
+    } finally {
+      setState(() {
+        _isLoading = false; // Stop loading after fetching data
+      });
     }
   }
 
@@ -50,149 +60,164 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
         title: const Text('My Salon'),
         backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Matching the gradient colors
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8.0),
-                  child: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
-                      ? Image.network(
-                          profileImageUrl!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.cover,
-                        )
-                      : Container(
-                          width: 80,
-                          height: 80,
-                          color: Colors.white,
-                        ),
-                ),
-                const SizedBox(width: 16.0),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      salonName,
-                      style: TextStyle(
-                        fontSize: 24.0,
-                        fontWeight: FontWeight.bold,
-                        color: hexStringToColor("#C0724A"), // Matching color
-                      ),
-                    ),
-                    const SizedBox(height: 4.0),
-                    Text(
-                      location,
-                      style: const TextStyle(
-                        fontSize: 16.0,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 20.0),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 16.0,
-                mainAxisSpacing: 16.0,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _buildGridButton(
-                    context,
-                    Icons.person,
-                    'My Profile',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.0),
+                        child: (profileImageUrl != null && profileImageUrl!.isNotEmpty)
+                            ? Image.network(
+                                profileImageUrl!,
+                                width: 80,
+                                height: 80,
+                                fit: BoxFit.cover,
+                              )
+                            : Container(
+                                width: 80,
+                                height: 80,
+                                color: Colors.white,
+                              ),
+                      ),
+                      const SizedBox(width: 16.0),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            salonName,
+                            style: TextStyle(
+                              fontSize: 24.0,
+                              fontWeight: FontWeight.bold,
+                              color: hexStringToColor("#C0724A"), // Matching color
+                            ),
+                          ),
+                          const SizedBox(height: 4.0),
+                          Text(
+                            location,
+                            style: const TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20.0),
+                  Expanded(
+                    child: GridView.count(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16.0,
+                      mainAxisSpacing: 16.0,
+                      children: <Widget>[
+                        _buildGridButton(
+                          context,
+                          Icons.person,
+                          'My Profile',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ProfilePage(),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
-                  ),
-                  _buildGridButton(
-                    context,
-                    Icons.notifications,
-                    'Notifications',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NotificationsPage()),
-                      );
-                    },
-                  ),
-                  _buildGridButton(
-                    context,
-                    Icons.photo_album_outlined,
-                    'Gallery',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SalonDetails(),
+                        _buildGridButton(
+                          context,
+                          Icons.notifications,
+                          'Notifications',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => NotificationsPage(),
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                        _buildGridButton(
+                          context,
+                          Icons.photo_album_outlined,
+                          'Gallery',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SalonDetails(),
+                              ),
+                            );
+                          },
+                        ),
+                        _buildGridButton(
+                          context,
+                          Icons.chat,
+                          'Chat Room',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OwnerChatPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        _buildGridButton(
+                          context,
+                          Icons.calendar_today,
+                          'Appointments',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AppointmentsPage(),
+                              ),
+                            );
+                          },
+                        ),
+                        _buildGridButton(
+                          context,
+                          Icons.settings,
+                          'Settings',
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SettingsOwner(),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  _buildGridButton(
-                    context,
-                    Icons.chat,
-                    'Chat Room',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const OwnerChatPage()),
-                      );
-                    },
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        FirebaseAuth.instance.signOut().then((Value) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MyImageSlider(),
+                            ),
+                          );
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: hexStringToColor("#C0724A"), // Matching color
+                        foregroundColor: Colors.white,
+                      ),
+                      child: const Text('Logout'),
+                    ),
                   ),
-                  _buildGridButton(
-                    context,
-                    Icons.calendar_today,
-                    'Appointments',
-                    () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => AppointmentsPage()),
-                      );
-                    },
-                  ),
-                  _buildGridButton(context, Icons.settings, 'Settings', () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const SettingsOwner()),
-                    );
-                  }),
                 ],
               ),
             ),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  FirebaseAuth.instance.signOut().then((Value) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MyImageSlider()),
-                  );
-                });
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: hexStringToColor("#C0724A"), // Matching color
-                  foregroundColor: Colors.white,
-                ),
-                child: const Text('Logout'),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 

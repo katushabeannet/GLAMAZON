@@ -15,7 +15,8 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
-  
+  bool _isLoading = false; // Added variable to manage loading state
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,50 +27,69 @@ class _SignInState extends State<SignIn> {
         decoration: const BoxDecoration(
           color: Color.fromARGB(255, 250, 227, 197), // Single background color
         ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-                20, MediaQuery.of(context).size.height * 0.1, 20, 0),
-            child: Column(
-              children: <Widget>[
-                logoWidget("assets/images/logo3.png"),
-                const SizedBox(
-                  height: 30,
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                      20, MediaQuery.of(context).size.height * 0.1, 20, 0),
+                  child: Column(
+                    children: <Widget>[
+                      logoWidget("assets/images/logo3.png"),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      reusableTextField("Enter Your Email", Icons.email_outlined,
+                          false, _emailTextController),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      reusableTextField("Enter Password", Icons.lock_outlined, true,
+                          _passwordTextController),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _signIn();
+                        },
+                        child: const Text("Sign In"),
+                      ),
+                      signUpOption(),
+                      const SizedBox(
+                        height: 40,
+                      ),
+                    ],
+                  ),
                 ),
-                reusableTextField("Enter Used Email", Icons.person_2_outlined,
-                    false, _emailTextController),
-                const SizedBox(
-                  height: 20,
-                ),
-                reusableTextField("Enter Password", Icons.lock_outlined, true,
-                    _passwordTextController),
-                const SizedBox(
-                  height: 20,
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    FirebaseAuth.instance.signInWithEmailAndPassword(
-                      email: _emailTextController.text, 
-                      password: _passwordTextController.text
-                    ).then((Value){
-                      Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const ImageSlider()),
-                    );
-                    });
-                  },
-                  child: const Text("Sign In"),
-                ),
-                signUpOption(),
-                const SizedBox(
-                  height: 40,
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
+  }
+
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+    });
+    
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailTextController.text,
+        password: _passwordTextController.text,
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const ImageSlider()),
+      );
+    } catch (error) {
+      print("Error signing in: ${error.toString()}");
+      // Optionally show an error message to the user here
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Row signUpOption() {
@@ -88,7 +108,7 @@ class _SignInState extends State<SignIn> {
             );
           },
           child: const Text(
-            ' Sign Up',
+            '  SIGN UP ',
             style: TextStyle(
                 color: Color(0xff089be3), fontWeight: FontWeight.bold),
           ),

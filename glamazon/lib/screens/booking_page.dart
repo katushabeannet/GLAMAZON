@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -58,37 +59,47 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Future<void> _fetchAppointments() async {
-    setState(() {
-      isLoading = true;
-    });
-    try {
-      var appointmentsSnapshot = await FirebaseFirestore.instance
-          .collection('appointments')
-          .where('salonId', isEqualTo: widget.salonId)
-          .get();
-
-      setState(() {
-        appointments = appointmentsSnapshot.docs.map((doc) {
-          var data = doc.data();
-          return {
-            'id': doc.id,
-            'service': data['service'],
-            'date': (data['date'] as Timestamp).toDate(),
-            'time': TimeOfDay(
-              hour: data['time']['hour'],
-              minute: data['time']['minute'],
-            ),
-          };
-        }).toList();
-      });
-    } catch (e) {
-      print('Error fetching appointments: $e');
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
+  setState(() {
+    isLoading = true;
+  });
+  try {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not logged in
+      print('No user is logged in');
+      return;
     }
+
+    var appointmentsSnapshot = await FirebaseFirestore.instance
+        .collection('appointments')
+        .where('salonId', isEqualTo: widget.salonId)
+        .where('userId', isEqualTo: user.uid) // Ensure this field exists in the appointments collection
+        .get();
+
+    setState(() {
+      appointments = appointmentsSnapshot.docs.map((doc) {
+        var data = doc.data();
+        return {
+          'id': doc.id,
+          'service': data['service'],
+          'date': (data['date'] as Timestamp).toDate(),
+          'time': TimeOfDay(
+            hour: data['time']['hour'],
+            minute: data['time']['minute'],
+          ),
+          'salonName': data['salonName'], // Fetch salonName from the appointment data
+        };
+      }).toList();
+    });
+  } catch (e) {
+    print('Error fetching appointments: $e');
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -117,30 +128,40 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Future<void> _submitBooking() async {
-    if (selectedService != null) {
-      setState(() {
-        isLoading = true;
-      });
-      try {
-        await FirebaseFirestore.instance.collection('appointments').add({
-          'salonId': widget.salonId,
-          'service': selectedService,
-          'date': Timestamp.fromDate(selectedDate),
-          'time': {
-            'hour': selectedTime.hour,
-            'minute': selectedTime.minute,
-          },
-        });
-        _fetchAppointments();
-      } catch (e) {
-        print('Error booking appointment: $e');
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
+  if (selectedService != null) {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // Handle the case where the user is not logged in
+        print('No user is logged in');
+        return;
       }
+
+      await FirebaseFirestore.instance.collection('appointments').add({
+        'salonId': widget.salonId,
+        'salonName': widget.salonName, // Include salonName
+        'service': selectedService,
+        'date': Timestamp.fromDate(selectedDate),
+        'time': {
+          'hour': selectedTime.hour,
+          'minute': selectedTime.minute,
+        },
+        'userId': user.uid, // Include userId for mapping
+      });
+      _fetchAppointments();
+    } catch (e) {
+      print('Error booking appointment: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
+}
+
 
   Future<void> _deleteAppointment(String id) async {
     setState(() {

@@ -5,11 +5,17 @@ import '../reusable_widgets/reusable_widgets.dart';
 import 'ownersignup.dart';
 
 // ignore: must_be_immutable
-class SalonOwnerLogin extends StatelessWidget {
+class SalonOwnerLogin extends StatefulWidget {
+  SalonOwnerLogin({super.key});
+
+  @override
+  _SalonOwnerLoginState createState() => _SalonOwnerLoginState();
+}
+
+class _SalonOwnerLoginState extends State<SalonOwnerLogin> {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
-
-  SalonOwnerLogin({super.key});
+  bool _isLoading = false; // Added variable to manage loading state
 
   @override
   Widget build(BuildContext context) {
@@ -43,40 +49,49 @@ class SalonOwnerLogin extends StatelessWidget {
                 const SizedBox(
                   height: 20,
                 ),
-                ElevatedButton(
-                  onPressed: () async {
-                    try {
-                      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-                        email: _emailTextController.text,
-                        password: _passwordTextController.text
-                      );
+                _isLoading
+                    ? const CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: () async {
+                          setState(() {
+                            _isLoading = true; // Start loading
+                          });
+                          try {
+                            UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                              email: _emailTextController.text,
+                              password: _passwordTextController.text
+                            );
 
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const SalonOwnerHome()),
-                      );
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'user-not-found') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('No user found for that email.')),
-                        );
-                      } else if (e.code == 'wrong-password') {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Wrong password provided.')),
-                        );
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Error: ${e.message}')),
-                        );
-                      }
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xff089be3),
-                    foregroundColor: Colors.white,
-                  ),
-                  child: const Text('Login'),
-                ),
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const SalonOwnerHome()),
+                            );
+                          } on FirebaseAuthException catch (e) {
+                            if (e.code == 'user-not-found') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('No user found for that email.')),
+                              );
+                            } else if (e.code == 'wrong-password') {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Wrong password provided.')),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: ${e.message}')),
+                              );
+                            }
+                          } finally {
+                            setState(() {
+                              _isLoading = false; // Stop loading
+                            });
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xff089be3),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('Login'),
+                      ),
                 signUpOption(context),
                 const SizedBox(
                   height: 40,
