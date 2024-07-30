@@ -78,7 +78,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
         case 1:
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const UserChatPage()),
+            MaterialPageRoute(builder: (context) => const ChatPage()),
           );
           break;
       }
