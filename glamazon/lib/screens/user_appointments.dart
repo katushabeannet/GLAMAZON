@@ -18,6 +18,35 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
   void initState() {
     super.initState();
     _fetchAppointments();
+    _listenForUpdates();
+  }
+
+  void _listenForUpdates() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      FirebaseFirestore.instance
+          .collection('appointments')
+          .where('userId', isEqualTo: user.uid)
+          .snapshots()
+          .listen((snapshot) {
+        setState(() {
+          appointments = snapshot.docs.map((doc) {
+            var data = doc.data();
+            return {
+              'id': doc.id,
+              'service': data['service'],
+              'salonName': data['salonName'] ?? 'Unknown Salon',
+              'date': (data['date'] as Timestamp).toDate(),
+              'time': TimeOfDay(
+                hour: data['time']['hour'],
+                minute: data['time']['minute'],
+              ),
+            };
+          }).toList();
+          _sortAppointmentsByDate();
+        });
+      });
+    }
   }
 
   Future<void> _fetchAppointments() async {
@@ -28,7 +57,6 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        // Handle the case where the user is not logged in
         print('No user is logged in');
         return;
       }
@@ -52,6 +80,7 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
             ),
           };
         }).toList();
+        _sortAppointmentsByDate();
       });
     } catch (e) {
       print('Error fetching user appointments: $e');
@@ -60,6 +89,10 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
         isLoading = false;
       });
     }
+  }
+
+  void _sortAppointmentsByDate() {
+    appointments.sort((a, b) => a['date'].compareTo(b['date']));
   }
 
   void _showDeleteConfirmationDialog(String id) {
@@ -144,26 +177,22 @@ class _UserAppointmentsPageState extends State<UserAppointmentsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      appointment['service'],
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 164, 100, 68),
-                                      ),
-                                    ),
-                                    Text(
-                                      appointment['salonName'],
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color.fromARGB(255, 121, 85, 72),
-                                      ),
-                                    ),
-                                  ],
+                                Text(
+                                  appointment['salonName'],
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 164, 100, 68),
+                                  ),
+                                ),
+                                const SizedBox(height: 10.0),
+                                Text(
+                                  appointment['service'],
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color.fromARGB(255, 164, 100, 68),
+                                  ),
                                 ),
                                 const SizedBox(height: 10.0),
                                 Text(

@@ -1,28 +1,65 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:glamazon/screens/notification-deatails.dart';
+import 'package:intl/intl.dart';
 
+class NotificationsPage extends StatefulWidget {
+  NotificationsPage({super.key});
 
-class NotificationsPage extends StatelessWidget {
-  final List<Map<String, dynamic>> notifications = [
-    {
-      'title': 'New Appointment',
-      'message': 'You have a new appointment scheduled for July 23, 2024.',
-      'dateTime': DateTime.now(),
-    },
-    {
-      'title': 'Payment Received',
-      'message': 'You have received a payment of \$50.00 from Jane Doe.',
-      'dateTime': DateTime.now().subtract(const Duration(days: 1)),
-    },
-    {
-      'title': 'Review Received',
-      'message': 'You have received a new review from John Smith.',
-      'dateTime': DateTime.now().subtract(const Duration(days: 2)),
-    },
-    // Add more notifications as needed
-  ];
+  @override
+  _NotificationsPageState createState() => _NotificationsPageState();
+}
 
-   NotificationsPage({super.key});
+class _NotificationsPageState extends State<NotificationsPage> {
+  List<Map<String, dynamic>> notifications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _listenForAppointments();
+  }
+
+  void _listenForAppointments() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      // Handle the case where the user is not logged in
+      print('No user is logged in');
+      return;
+    }
+
+    FirebaseFirestore.instance
+        .collection('appointments')
+        .where('salonId', isEqualTo: user.uid)
+        .snapshots()
+        .listen((snapshot) async {
+      List<Map<String, dynamic>> tempNotifications = [];
+
+      for (var doc in snapshot.docs) {
+        var data = doc.data();
+        var userId = data['userId'];
+
+        // Fetch user details
+        var userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+        var userName = (userDoc.exists && userDoc.data() != null) ? userDoc.data()!['name'] ?? 'Unknown User' : 'Unknown User';
+
+        tempNotifications.add({
+          'title': 'New Appointment',
+          'message': 'You have a new appointment for ${data['service']} from $userName at ${data['salonName']} on ${DateFormat('yyyy-MM-dd').format((data['date'] as Timestamp).toDate())} at ${TimeOfDay(hour: data['time']['hour'], minute: data['time']['minute']).format(context)}.',
+          'dateTime': (data['date'] as Timestamp).toDate(),
+          'userName': userName,
+          'salonName': data['salonName'],
+          'service': data['service'],
+          'time': data['time']
+        });
+      }
+
+      setState(() {
+        notifications = tempNotifications;
+        notifications.sort((a, b) => b['dateTime'].compareTo(a['dateTime']));
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,6 +102,10 @@ class NotificationsPage extends StatelessWidget {
                       title: notifications[index]['title']!,
                       message: notifications[index]['message']!,
                       dateTime: notifications[index]['dateTime']!,
+                      userName: notifications[index]['userName']!,
+                      salonName: notifications[index]['salonName']!,
+                      service: notifications[index]['service']!,
+                      time: notifications[index]['time']!,
                     ),
                   ),
                 );
