@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:image/image.dart' as img;
 import 'package:intl/intl.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:video_player/video_player.dart';
 
 class OwnerChatPage extends StatefulWidget {
   const OwnerChatPage({super.key});
@@ -18,7 +19,6 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   final ImagePicker _picker = ImagePicker();
-  final String ownerProfileImage = 'assets/images/dp.jpg'; // Placeholder owner profile image
 
   @override
   void initState() {
@@ -46,14 +46,13 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
             'isOwner': data['isOwner'] ?? false,
             'userId': data['userId'] ?? '',
             'messageId': doc.id,
-            'replyToMessageId': data['replyToMessageId'],
           });
         }
       });
     }
   }
 
-  Future<void> _sendMessage(String text, {File? image, File? video, String? replyToMessageId}) async {
+  Future<void> _sendMessage(String text, {File? image, File? video}) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final messageData = {
@@ -63,7 +62,6 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
         'timestamp': FieldValue.serverTimestamp(),
         'isOwner': true,
         'userId': user.uid,
-        'replyToMessageId': replyToMessageId,
       };
 
       await FirebaseFirestore.instance.collection('messages').add(messageData);
@@ -139,13 +137,51 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
     return DateFormat('hh:mm a').format(timestamp);
   }
 
+  Future<void> _clearAllChats() async {
+    final messages = await FirebaseFirestore.instance.collection('messages').get();
+    for (var doc in messages.docs) {
+      await FirebaseFirestore.instance.collection('messages').doc(doc.id).delete();
+    }
+    _fetchMessages();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: const Text('Owner Chat Room'),
-        backgroundColor: hexStringToColor("#C0724A"), // Matching color
+        title: const Text('Owner Chat'),
+        backgroundColor: hexStringToColor("#C0724A"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: () async {
+              final confirm = await showDialog<bool>(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text('Clear Chat'),
+                    content: const Text('Are you sure you want to clear all chats?'),
+                    actions: [
+                      TextButton(
+                        child: const Text('Cancel'),
+                        onPressed: () => Navigator.of(context).pop(false),
+                      ),
+                      TextButton(
+                        child: const Text('Clear'),
+                        onPressed: () => Navigator.of(context).pop(true),
+                      ),
+                    ],
+                  );
+                },
+              );
+
+              if (confirm == true) {
+                _clearAllChats();
+              }
+            },
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -156,147 +192,111 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
               itemBuilder: (context, index) {
                 final message = _messages[index];
                 final isOwner = message['isOwner'];
-                return GestureDetector(
-                  onLongPress: () {
-                    // Handle reply message logic here
-                    showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog(
-                          title: const Text('Reply to message'),
-                          content: TextField(
-                            controller: _messageController,
-                            decoration: const InputDecoration(
-                              hintText: 'Enter your reply',
+                return Container(
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Row(
+                    mainAxisAlignment: isOwner ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (!isOwner)
+                        const CircleAvatar(
+                          backgroundImage: AssetImage('assets/images/user.png'),
+                          radius: 20.0,
+                        ),
+                      const SizedBox(width: 10.0),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10.0),
+                              decoration: BoxDecoration(
+                                color: isOwner
+                                    ? hexStringToColor("#089be3")
+                                    : hexStringToColor("#C0724A"),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: const Radius.circular(16),
+                                  topRight: const Radius.circular(16),
+                                  bottomLeft: isOwner ? const Radius.circular(16) : const Radius.circular(0),
+                                  bottomRight: isOwner ? const Radius.circular(0) : const Radius.circular(16),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (message['image'] != null) ...[
+                                    const Text(
+                                      "Image",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                    ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        maxHeight: MediaQuery.of(context).size.height * 0.4,
+                                      ),
+                                      child: Image.network(message['image']),
+                                    ),
+                                  ] else if (message['video'] != null) ...[
+                                    const Text(
+                                      "Video",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontStyle: FontStyle.italic,
+                                      ),
+                                    ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => VideoPlayerPage(videoUrl: message['video']),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black,
+                                          borderRadius: BorderRadius.circular(8.0),
+                                        ),
+                                        child: const Icon(
+                                          Icons.play_circle_outline,
+                                          color: Colors.white,
+                                          size: 48.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ] else if (message['text'].isNotEmpty) ...[
+                                    Text(
+                                      message['text'],
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
-                          ),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                final replyText = _messageController.text.trim();
-                                if (replyText.isNotEmpty) {
-                                  _sendMessage(replyText, replyToMessageId: message['messageId']);
-                                  Navigator.of(context).pop();
-                                }
-                              },
-                              child: const Text('Send'),
+                            const SizedBox(height: 5.0),
+                            Text(
+                              _formatTime(message['timestamp']),
+                              style: const TextStyle(
+                                fontSize: 12.0,
+                                color: Colors.black54,
+                              ),
                             ),
                           ],
-                        );
-                      },
-                    );
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    child: Row(
-                      mainAxisAlignment: isOwner ? MainAxisAlignment.end : MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (!isOwner)
-                          const CircleAvatar(
-                            backgroundImage: AssetImage('assets/images/user.png'),
-                            radius: 20.0,
-                          ),
-                        const SizedBox(width: 10.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10.0),
-                                decoration: BoxDecoration(
-                                  color: isOwner
-                                      ? hexStringToColor("#089be3")
-                                      : hexStringToColor("#C0724A"),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: const Radius.circular(16),
-                                    topRight: const Radius.circular(16),
-                                    bottomLeft: isOwner ? const Radius.circular(16) : const Radius.circular(0),
-                                    bottomRight: isOwner ? const Radius.circular(0) : const Radius.circular(16),
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    message['text'].isNotEmpty
-                                        ? Text(
-                                            message['text'],
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : message['image'] != null
-                                            ? Image.network(message['image'])
-                                            : message['video'] != null
-                                                ? const Column(
-                                                    children: [
-                                                      Icon(Icons.videocam,
-                                                          color: Colors.white),
-                                                      Text(
-                                                        'Video Message',
-                                                        style: TextStyle(
-                                                            color: Colors.white),
-                                                      ),
-                                                    ],
-                                                  )
-                                                : const SizedBox.shrink(),
-                                    if (message['replyToMessageId'] != null)
-                                      FutureBuilder<DocumentSnapshot>(
-                                        future: FirebaseFirestore.instance
-                                            .collection('messages')
-                                            .doc(message['replyToMessageId'])
-                                            .get(),
-                                        builder: (context, snapshot) {
-                                          if (snapshot.connectionState ==
-                                              ConnectionState.waiting) {
-                                            return const CircularProgressIndicator();
-                                          }
-                                          if (snapshot.hasData &&
-                                              snapshot.data != null) {
-                                            final replyData = snapshot.data!
-                                                    .data()
-                                                as Map<String, dynamic>;
-                                            return Container(
-                                              margin: const EdgeInsets.only(top: 5.0),
-                                              padding: const EdgeInsets.all(8.0),
-                                              decoration: BoxDecoration(
-                                                color: Colors.grey.shade300,
-                                                borderRadius:
-                                                    BorderRadius.circular(8.0),
-                                              ),
-                                              child: Text(
-                                                replyData['text'] ?? '',
-                                                style: const TextStyle(
-                                                  color: Colors.black87,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                          return const SizedBox.shrink();
-                                        },
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 5.0),
-                              Text(
-                                _formatTime(message['timestamp']),
-                                style: const TextStyle(
-                                  fontSize: 12.0,
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
-                        const SizedBox(width: 10.0),
-                        if (isOwner)
-                          CircleAvatar(
-                            backgroundImage: AssetImage(ownerProfileImage),
-                            radius: 20.0,
-                          ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(width: 10.0),
+                      if (isOwner)
+                        const CircleAvatar(
+                          backgroundImage: AssetImage('assets/images/salon_owner.png'),
+                          radius: 20.0,
+                        ),
+                    ],
                   ),
                 );
               },
@@ -328,6 +328,14 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                               },
                             ),
                             ListTile(
+                              leading: const Icon(Icons.photo_library),
+                              title: const Text('Choose from gallery'),
+                              onTap: () {
+                                _pickImage();
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            ListTile(
                               leading: const Icon(Icons.video_library),
                               title: const Text('Pick video from gallery'),
                               onTap: () {
@@ -337,7 +345,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                             ),
                             ListTile(
                               leading: const Icon(Icons.videocam),
-                              title: const Text('Record a video'),
+                              title: const Text('Record video'),
                               onTap: () {
                                 _recordVideo();
                                 Navigator.of(context).pop();
@@ -376,10 +384,69 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
   }
 }
 
-Color hexStringToColor(String hexColor) {
-  hexColor = hexColor.toUpperCase().replaceAll('#', '');
-  if (hexColor.length == 6) {
-    hexColor = 'FF$hexColor';
+class VideoPlayerPage extends StatefulWidget {
+  final String videoUrl;
+
+  const VideoPlayerPage({Key? key, required this.videoUrl}) : super(key: key);
+
+  @override
+  _VideoPlayerPageState createState() => _VideoPlayerPageState();
+}
+
+class _VideoPlayerPageState extends State<VideoPlayerPage> {
+  late VideoPlayerController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.network(widget.videoUrl)
+      ..initialize().then((_) {
+        setState(() {});
+      });
   }
-  return Color(int.parse(hexColor, radix: 16));
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Video Player'),
+        backgroundColor: hexStringToColor("#C0724A"),
+      ),
+      body: Center(
+        child: _controller.value.isInitialized
+            ? AspectRatio(
+                aspectRatio: _controller.value.aspectRatio,
+                child: VideoPlayer(_controller),
+              )
+            : const CircularProgressIndicator(),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          setState(() {
+            if (_controller.value.isPlaying) {
+              _controller.pause();
+            } else {
+              _controller.play();
+            }
+          });
+        },
+        child: Icon(
+          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+}
+
+Color hexStringToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 7 || hexString.length == 9) buffer.write('ff');
+  buffer.write(hexString.replaceFirst('#', ''));
+  return Color(int.parse(buffer.toString(), radix: 16));
 }

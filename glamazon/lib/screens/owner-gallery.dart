@@ -265,7 +265,7 @@ class _SalonDetailsPageState extends State<SalonDetails> {
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const UserChatPage()),
+              MaterialPageRoute(builder: (context) => const ChatPage()),
             );
           }
         },
