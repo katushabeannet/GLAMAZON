@@ -41,7 +41,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
         // Fetch user details
         var userDoc = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-        var userName = (userDoc.exists && userDoc.data() != null) ? userDoc.data()!['name'] ?? 'Unknown User' : 'Unknown User';
+        var userName = (userDoc.exists && userDoc.data() != null) ? userDoc.data()!['username'] ?? 'Unknown User' : 'Unknown User';
+        var phoneNumber = (userDoc.exists && userDoc.data() != null) ? userDoc.data()!['phone'] ?? 'N/A' : 'N/A';
 
         tempNotifications.add({
           'title': 'New Appointment',
@@ -50,7 +51,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
           'userName': userName,
           'salonName': data['salonName'],
           'service': data['service'],
-          'time': data['time']
+          'time': data['time'],
+          'phoneNumber': phoneNumber
         });
       }
 
@@ -106,6 +108,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       salonName: notifications[index]['salonName']!,
                       service: notifications[index]['service']!,
                       time: notifications[index]['time']!,
+                      phoneNumber: notifications[index]['phoneNumber']!,
                     ),
                   ),
                 );

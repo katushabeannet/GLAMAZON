@@ -59,76 +59,6 @@ class _BookingPageState extends State<BookingPage> {
   }
 
   Future<void> _fetchAppointments() async {
-  setState(() {
-    isLoading = true;
-  });
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      // Handle the case where the user is not logged in
-      print('No user is logged in');
-      return;
-    }
-
-    var appointmentsSnapshot = await FirebaseFirestore.instance
-        .collection('appointments')
-        .where('salonId', isEqualTo: widget.salonId)
-        .where('userId', isEqualTo: user.uid) // Ensure this field exists in the appointments collection
-        .get();
-
-    setState(() {
-      appointments = appointmentsSnapshot.docs.map((doc) {
-        var data = doc.data();
-        return {
-          'id': doc.id,
-          'service': data['service'],
-          'date': (data['date'] as Timestamp).toDate(),
-          'time': TimeOfDay(
-            hour: data['time']['hour'],
-            minute: data['time']['minute'],
-          ),
-          'salonName': data['salonName'], // Fetch salonName from the appointment data
-        };
-      }).toList();
-    });
-  } catch (e) {
-    print('Error fetching appointments: $e');
-  } finally {
-    setState(() {
-      isLoading = false;
-    });
-  }
-}
-
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: selectedDate,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != selectedDate) {
-      setState(() {
-        selectedDate = picked;
-      });
-    }
-  }
-
-  Future<void> _selectTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: selectedTime,
-    );
-    if (picked != null && picked != selectedTime) {
-      setState(() {
-        selectedTime = picked;
-      });
-    }
-  }
-
-  Future<void> _submitBooking() async {
-  if (selectedService != null) {
     setState(() {
       isLoading = true;
     });
@@ -140,28 +70,82 @@ class _BookingPageState extends State<BookingPage> {
         return;
       }
 
-      await FirebaseFirestore.instance.collection('appointments').add({
-        'salonId': widget.salonId,
-        'salonName': widget.salonName, // Include salonName
-        'service': selectedService,
-        'date': Timestamp.fromDate(selectedDate),
-        'time': {
-          'hour': selectedTime.hour,
-          'minute': selectedTime.minute,
-        },
-        'userId': user.uid, // Include userId for mapping
+      var appointmentsSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .where('salonId', isEqualTo: widget.salonId)
+          .where('userId', isEqualTo: user.uid) // Ensure this field exists in the appointments collection
+          .get();
+
+      setState(() {
+        appointments = appointmentsSnapshot.docs.map((doc) {
+          var data = doc.data();
+          return {
+            'id': doc.id,
+            'service': data['service'],
+            'date': (data['date'] as Timestamp).toDate(),
+            'time': TimeOfDay(
+              hour: data['time']['hour'],
+              minute: data['time']['minute'],
+            ),
+          };
+        }).toList();
       });
-      _fetchAppointments();
     } catch (e) {
-      print('Error booking appointment: $e');
+      print('Error fetching appointments: $e');
     } finally {
       setState(() {
         isLoading = false;
       });
     }
   }
-}
 
+  Future<void> _submitBooking() async {
+    if (selectedService != null) {
+      setState(() {
+        isLoading = true;
+      });
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user == null) {
+          // Handle the case where the user is not logged in
+          print('No user is logged in');
+          return;
+        }
+
+        var userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (userSnapshot.exists) {
+          var userData = userSnapshot.data()!;
+          var userName = userData['username'];
+          var userPhone = userData['phone'];
+
+          await FirebaseFirestore.instance.collection('appointments').add({
+            'salonId': widget.salonId,
+            'salonName': widget.salonName, // Include salonName
+            'service': selectedService,
+            'date': Timestamp.fromDate(selectedDate),
+            'time': {
+              'hour': selectedTime.hour,
+              'minute': selectedTime.minute,
+            },
+            'userId': user.uid, // Include userId for mapping
+            'userName': userName,
+            'userPhone': userPhone,
+          });
+          _fetchAppointments();
+        }
+      } catch (e) {
+        print('Error booking appointment: $e');
+      } finally {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
 
   Future<void> _deleteAppointment(String id) async {
     setState(() {
@@ -253,7 +237,13 @@ class _BookingPageState extends State<BookingPage> {
                 Navigator.of(context).pop();
                 _rescheduleAppointment(id, newDate, newTime);
               },
-              child: const Text('Save'),
+              style: ElevatedButton.styleFrom(
+                side: const BorderSide(color: Color.fromARGB(255, 255, 219, 59)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+              ),
+              child: const Text('Reschedule', style: TextStyle(color: Color.fromARGB(255, 233, 160, 133))),
             ),
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
@@ -328,85 +318,108 @@ class _BookingPageState extends State<BookingPage> {
                     ListTile(
                       title: Text("Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
                       trailing: const Icon(Icons.calendar_today),
-                      onTap: () => _selectDate(context),
+                      onTap: () async {
+                        final DateTime? picked = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime(2000),
+                          lastDate: DateTime(2101),
+                        );
+                        if (picked != null && picked != selectedDate) {
+                          setState(() {
+                            selectedDate = picked;
+                          });
+                        }
+                      },
                     ),
                     ListTile(
                       title: Text("Time: ${selectedTime.format(context)}"),
                       trailing: const Icon(Icons.access_time),
-                      onTap: () => _selectTime(context),
+                      onTap: () async {
+                        final TimeOfDay? picked = await showTimePicker(
+                          context: context,
+                          initialTime: selectedTime,
+                        );
+                        if (picked != null && picked != selectedTime) {
+                          setState(() {
+                            selectedTime = picked;
+                          });
+                        }
+                      },
                     ),
-                    const SizedBox(height: 20.0),
+                    const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: _submitBooking,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(255, 164, 100, 68),
+                        backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Change the button color here
                       ),
-                      child: const Text('Submit Booking', style: TextStyle(color: Colors.white)),
+                      child: const Text('Book Appointment'),
                     ),
-                    const SizedBox(height: 20.0),
+                    const SizedBox(height: 16.0),
                     const Text(
-                      'Appointments',
+                      'Your Appointments:',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(height: 10.0),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: appointments.length,
-                      itemBuilder: (context, index) {
-                        final appointment = appointments[index];
-                        return Card(
-                          color: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            side: const BorderSide(
-                              color: Color.fromARGB(255, 164, 100, 68),
-                              width: 2.0,
-                            ),
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  appointment['service'],
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    color: Color.fromARGB(255, 164, 100, 68),
-                                  ),
+                    const SizedBox(height: 8.0),
+                    ...appointments.map((appointment) {
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        color: Colors.transparent, // Set background to transparent
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31), width: 1), // Thin golden border
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Service: ${appointment['service']}',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFA0522D), // Sienna color
                                 ),
-                                const SizedBox(height: 10.0),
-                                Text(
-                                  "Date: ${DateFormat('yyyy-MM-dd').format(appointment['date'])}",
-                                ),
-                                const SizedBox(height: 5.0),
-                                Text(
-                                  "Time: ${appointment['time'].format(context)}",
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    TextButton(
-                                      onPressed: () => _showRescheduleDialog(
+                              ),
+                              const SizedBox(height: 4.0),
+                              Text('Date: ${DateFormat('yyyy-MM-dd').format(appointment['date'])}'),
+                              const SizedBox(height: 4.0),
+                              Text('Time: ${appointment['time'].format(context)}'),
+                              const SizedBox(height: 8.0),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      _showRescheduleDialog(
                                         appointment['id'],
                                         appointment['date'],
                                         appointment['time'],
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31)), // Thin golden border
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8.0),
                                       ),
-                                      child: const Text('Reschedule'),
                                     ),
-                                    IconButton(
-                                      icon: const Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () => _showDeleteConfirmationDialog(appointment['id']),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
+                                    child: const Text('Reschedule'),
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () {
+                                      _showDeleteConfirmationDialog(appointment['id']);
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      );
+                    }).toList(),
                   ],
                 ),
               ),

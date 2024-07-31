@@ -9,6 +9,7 @@ class NotificationDetailsPage extends StatelessWidget {
   final String salonName;
   final String service;
   final Map<String, dynamic> time;
+  final String phoneNumber;
 
   const NotificationDetailsPage({
     super.key,
@@ -19,6 +20,7 @@ class NotificationDetailsPage extends StatelessWidget {
     required this.salonName,
     required this.service,
     required this.time,
+    required this.phoneNumber,
   });
 
   @override
@@ -52,10 +54,42 @@ class NotificationDetailsPage extends StatelessWidget {
             ),
             const SizedBox(height: 20.0),
             Text(
-              'You have a new appointment for $service from $userName at $salonName on ${DateFormat('yyyy-MM-dd').format(dateTime)} at ${TimeOfDay(hour: time['hour'], minute: time['minute']).format(context)}.',
+              'You have a new appointment for\n'
+              '\n'
+              'Service: $service, from \n'
+              '\n'
+              'Customer: $userName,  on \n'
+              '\n'
+              'Scheduled Date: ${DateFormat('yyyy-MM-dd').format(dateTime)} (${DateFormat('EEEE').format(dateTime)}),  at \n'
+              '\n'
+              'Scheduled Time: ${TimeOfDay(hour: time['hour'], minute: time['minute']).format(context)}.\n'
+              '\n'
+              'For more information call the customer on  $phoneNumber  '
+              ' or send a message in the chat.',
               style: const TextStyle(
                 fontSize: 18.0,
                 height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 20.0),
+            Center(
+              child: Column(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.chat, size: 30.0, color: hexStringToColor("#C0724A")),
+                    onPressed: () {
+                      // Add chat functionality here
+                    },
+                  ),
+                  const SizedBox(height: 4.0),
+                  Text(
+                    'Chat',
+                    style: TextStyle(
+                      fontSize: 16.0,
+                      color: hexStringToColor("#C0724A"), // Matching color
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
