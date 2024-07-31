@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:glamazon/models.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
@@ -9,7 +10,9 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final Owner salon;
+
+  const ChatPage({required this.salon, Key? key}) : super(key: key);
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -29,26 +32,34 @@ class _ChatPageState extends State<ChatPage> {
   Future<void> _fetchMessages() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
-      final messagesSnapshot = await FirebaseFirestore.instance
-          .collection('messages')
-          .orderBy('timestamp', descending: true)
-          .get();
+      try {
+        print('Fetching messages for userId: ${user.uid} and salonId: ${widget.salon.id}');
+        final messagesSnapshot = await FirebaseFirestore.instance
+            .collection('messages')
+            .where('salonId', isEqualTo: widget.salon.id)
+            .where('userId', isEqualTo: user.uid)
+            .orderBy('timestamp', descending: true)
+            .get();
 
-      setState(() {
-        _messages.clear();
-        for (var doc in messagesSnapshot.docs) {
-          final data = doc.data();
-          _messages.add({
-            'text': data['text'],
-            'image': data['image'],
-            'video': data['video'],
-            'timestamp': (data['timestamp'] as Timestamp).toDate(),
-            'isOwner': data['isOwner'] ?? false,
-            'userId': data['userId'] ?? '',
-            'messageId': doc.id,
-          });
-        }
-      });
+        print('Messages fetched: ${messagesSnapshot.docs.length}');
+        setState(() {
+          _messages.clear();
+          for (var doc in messagesSnapshot.docs) {
+            final data = doc.data();
+            _messages.add({
+              'text': data['text'] ?? '',
+              'image': data['image'],
+              'video': data['video'],
+              'timestamp': (data['timestamp'] as Timestamp).toDate(),
+              'isOwner': data['isOwner'] ?? false,
+              'userId': data['userId'] ?? '',
+              'messageId': doc.id,
+            });
+          }
+        });
+      } catch (e) {
+        print('Error fetching messages: $e');
+      }
     }
   }
 
@@ -62,9 +73,17 @@ class _ChatPageState extends State<ChatPage> {
         'timestamp': FieldValue.serverTimestamp(),
         'isOwner': false,
         'userId': user.uid,
+        'salonId': widget.salon.id,
       };
 
-      await FirebaseFirestore.instance.collection('messages').add(messageData);
+      print('Sending message: $messageData'); // Debug print statement
+
+      try {
+        await FirebaseFirestore.instance.collection('messages').add(messageData);
+        print('Message sent successfully'); // Debug print statement
+      } catch (e) {
+        print('Error sending message: $e'); // Debug print statement
+      }
 
       _messageController.clear();
       _fetchMessages(); // Refresh messages after sending
@@ -80,9 +99,10 @@ class _ChatPageState extends State<ChatPage> {
 
       final snapshot = await uploadTask.whenComplete(() {});
       final downloadUrl = await snapshot.ref.getDownloadURL();
+      print('File uploaded: $downloadUrl'); // Debug print statement
       return downloadUrl;
     } catch (e) {
-      print('Error uploading file: $e');
+      print('Error uploading file: $e'); // Debug print statement
       return null;
     }
   }
@@ -137,12 +157,55 @@ class _ChatPageState extends State<ChatPage> {
     return DateFormat('hh:mm a').format(timestamp);
   }
 
+  Future<String?> _getUserProfileImage(String userId) async {
+    final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    if (userSnapshot.exists) {
+      return userSnapshot.data()?['profileImageUrl'];
+    }
+    return null;
+  }
+
+  Future<VideoPlayerController> _initializeVideoPlayer(String videoUrl) async {
+    final controller = VideoPlayerController.network(videoUrl);
+    await controller.initialize();
+    await controller.setLooping(true);
+    await controller.play();
+    return controller;
+  }
+
+  Future<void> _clearAllChats() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final messagesSnapshot = await FirebaseFirestore.instance
+          .collection('messages')
+          .where('salonId', isEqualTo: widget.salon.id)
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      for (var doc in messagesSnapshot.docs) {
+        await FirebaseFirestore.instance.collection('messages').doc(doc.id).delete();
+      }
+
+      _fetchMessages(); // Refresh messages after clearing
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: widget.salon.profileImageUrl.isNotEmpty
+                  ? NetworkImage(widget.salon.profileImageUrl)
+                  : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+            ),
+            const SizedBox(width: 10),
+            Text(widget.salon.salonName),
+          ],
+        ),
         backgroundColor: hexStringToColor("#C0724A"),
         actions: [
           IconButton(
@@ -183,104 +246,92 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                final isOwner = message['isOwner'];
+                // final isOwner = message['isOwner'];
+                final isCurrentUser = message['userId'] == FirebaseAuth.instance.currentUser?.uid;
+
                 return Container(
                   margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: Row(
-                    mainAxisAlignment: isOwner ? MainAxisAlignment.end : MainAxisAlignment.start,
+                    mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (!isOwner)
-                        const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/user.png'),
-                          radius: 20.0,
+                      if (!isCurrentUser) ...[
+                        FutureBuilder<String?>(
+                          future: _getUserProfileImage(message['userId']),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.waiting) {
+                              return const CircleAvatar(
+                                backgroundImage: AssetImage('assets/images/user.png'),
+                                radius: 20.0,
+                              );
+                            }
+                            return CircleAvatar(
+                              backgroundImage: snapshot.data != null
+                                  ? NetworkImage(snapshot.data!)
+                                  : const AssetImage('assets/images/user.png') as ImageProvider,
+                              radius: 20.0,
+                            );
+                          },
                         ),
-                      const SizedBox(width: 10.0),
-                      Expanded(
+                        const SizedBox(width: 8.0),
+                      ],
+                      Flexible(
                         child: Column(
-                          crossAxisAlignment: isOwner ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                          crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(10.0),
-                              decoration: BoxDecoration(
-                                color: isOwner
-                                    ? hexStringToColor("#089be3")
-                                    : hexStringToColor("#C0724A"),
-                                borderRadius: BorderRadius.only(
-                                  topLeft: const Radius.circular(16),
-                                  topRight: const Radius.circular(16),
-                                  bottomLeft: isOwner ? const Radius.circular(16) : const Radius.circular(0),
-                                  bottomRight: isOwner ? const Radius.circular(0) : const Radius.circular(16),
+                            if (message['text'] != null && message['text'].isNotEmpty)
+                              Container(
+                                padding: const EdgeInsets.all(10.0),
+                                decoration: BoxDecoration(
+                                  color: isCurrentUser ? Color.fromARGB(255, 241, 211, 60) : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(10.0),
+                                ),
+                                child: Text(
+                                  message['text'],
+                                  style: const TextStyle(fontSize: 16.0),
                                 ),
                               ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (message['image'] != null) ...[
-                                    const Text(
-                                      "Image",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        maxHeight: MediaQuery.of(context).size.height * 0.4,
-                                      ),
-                                      child: Image.network(message['image']),
-                                    ),
-                                  ] else if (message['video'] != null) ...[
-                                    const Text(
-                                      "Video",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontStyle: FontStyle.italic,
-                                      ),
-                                    ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => VideoPlayerPage(videoUrl: message['video']),
-                                          ),
-                                        );
-                                      },
-                                      child: const Icon(
-                                        Icons.play_circle_outline,
-                                        color: Colors.white,
-                                        size: 48.0,
-                                      ),
-                                    ),
-                                  ] else if (message['text'].isNotEmpty) ...[
-                                    Text(
-                                      message['text'],
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ],
+                            if (message['image'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Image.network(
+                                  message['image'],
+                                  width: 200,
+                                  height: 200,
+                                  fit: BoxFit.cover,
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 5.0),
+                            if (message['video'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: FutureBuilder<VideoPlayerController>(
+                                  future: _initializeVideoPlayer(message['video']),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState == ConnectionState.done) {
+                                      return AspectRatio(
+                                        aspectRatio: snapshot.data!.value.aspectRatio,
+                                        child: VideoPlayer(snapshot.data!),
+                                      );
+                                    } else {
+                                      return const CircularProgressIndicator();
+                                    }
+                                  },
+                                ),
+                              ),
                             Text(
                               _formatTime(message['timestamp']),
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black54,
-                              ),
+                              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10.0),
-                      if (isOwner)
-                        const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/salon_owner.png'),
+                      if (isCurrentUser) ...[
+                        const SizedBox(width: 8.0),
+                        CircleAvatar(
+                          backgroundImage: const AssetImage('assets/images/default_profile.png'),
                           radius: 20.0,
                         ),
+                      ],
                     ],
                   ),
                 );
@@ -289,59 +340,71 @@ class _ChatPageState extends State<ChatPage> {
           ),
           Container(
             padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.grey.shade300)),
-            ),
+            color: Colors.white,
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.camera_alt),
-                              title: const Text('Take a photo'),
-                              onTap: () {
-                                _takePhoto();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.photo_library),
-                              title: const Text('Choose from gallery'),
-                              onTap: () {
-                                _pickImage();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.video_library),
-                              title: const Text('Pick video from gallery'),
-                              onTap: () {
-                                _pickVideo();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.videocam),
-                              title: const Text('Record video'),
-                              onTap: () {
-                                _recordVideo();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
+                PopupMenuButton<int>(
+                  onSelected: (value) {
+                    switch (value) {
+                      case 0:
+                        _pickImage();
+                        break;
+                      case 1:
+                        _takePhoto();
+                        break;
+                      case 2:
+                        _pickVideo();
+                        break;
+                      case 3:
+                        _recordVideo();
+                        break;
+                    }
                   },
+                  itemBuilder: (context) => [
+                    PopupMenuItem(
+                      value: 0,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.photo_library, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text('Pick Image'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 1,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.camera_alt, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text('Take Photo'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 2,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.video_library, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text('Pick Video'),
+                        ],
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 3,
+                      child: Row(
+                        children: const [
+                          Icon(Icons.videocam, color: Colors.black),
+                          SizedBox(width: 8),
+                          Text('Record Video'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  child: const Icon(Icons.attach_file, color: Colors.black),
                 ),
+                const SizedBox(width: 8),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
@@ -352,11 +415,10 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send, color: Colors.black),
                   onPressed: () {
-                    final messageText = _messageController.text.trim();
-                    if (messageText.isNotEmpty) {
-                      _sendMessage(messageText);
+                    if (_messageController.text.isNotEmpty) {
+                      _sendMessage(_messageController.text);
                     }
                   },
                 ),
@@ -367,89 +429,12 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-
-  Future<void> _clearAllChats() async {
-    final messages = await FirebaseFirestore.instance.collection('messages').get();
-    for (var doc in messages.docs) {
-      await FirebaseFirestore.instance.collection('messages').doc(doc.id).delete();
-    }
-    _fetchMessages();
-  }
-}
-
-class VideoPlayerPage extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoPlayerPage({required this.videoUrl, super.key});
-
-  @override
-  _VideoPlayerPageState createState() => _VideoPlayerPageState();
-}
-
-class _VideoPlayerPageState extends State<VideoPlayerPage> {
-  late VideoPlayerController _controller;
-  bool _isPlaying = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = VideoPlayerController.network(widget.videoUrl)
-      ..initialize().then((_) {
-        setState(() {});
-      });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Video Player'),
-        backgroundColor: hexStringToColor("#C0724A"),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (_controller.value.isInitialized)
-              AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
-              )
-            else
-              const CircularProgressIndicator(),
-            IconButton(
-              icon: Icon(
-                _isPlaying ? Icons.pause : Icons.play_arrow,
-                color: Colors.black,
-              ),
-              onPressed: () {
-                setState(() {
-                  if (_isPlaying) {
-                    _controller.pause();
-                  } else {
-                    _controller.play();
-                  }
-                  _isPlaying = !_isPlaying;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 }
 
 Color hexStringToColor(String hexColor) {
-  hexColor = hexColor.toUpperCase().replaceAll('#', '');
+  hexColor = hexColor.toUpperCase().replaceAll("#", "");
   if (hexColor.length == 6) {
-    hexColor = 'FF$hexColor';
+    hexColor = "FF$hexColor";
   }
   return Color(int.parse(hexColor, radix: 16));
 }

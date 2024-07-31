@@ -263,10 +263,10 @@ class _SalonDetailsPageState extends State<SalonDetails> {
               MaterialPageRoute(builder: (context) => const MyImageSlider()),
             );
           } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChatPage()),
-            );
+            // Navigator.push(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const ChatPage(salon: widget.salon)),
+            // );
           }
         },
       ),

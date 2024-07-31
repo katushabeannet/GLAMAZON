@@ -10,7 +10,7 @@ import 'package:glamazon/screens/rating_page.dart';
 class SalonDetailPage extends StatefulWidget {
   final Owner salon;
 
-  const SalonDetailPage({super.key, required this.salon});
+  const SalonDetailPage({Key? key, required this.salon}) : super(key: key);
 
   @override
   _SalonDetailPageState createState() => _SalonDetailPageState();
@@ -77,9 +77,11 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
           break;
         case 1:
           Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ChatPage()),
-          );
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => ChatPage(salon: widget.salon),
+                  ),
+                );
           break;
       }
     });
