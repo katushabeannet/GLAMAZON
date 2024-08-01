@@ -2,6 +2,7 @@
 // import 'package:cloud_firestore/cloud_firestore.dart';
 // import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:glamazon/models.dart';
+// import 'package:glamazon/screens/appointments_page.dart';
 // import 'package:image_picker/image_picker.dart';
 // import 'dart:io';
 // import 'package:image/image.dart' as img;
@@ -22,18 +23,33 @@
 //   final TextEditingController _messageController = TextEditingController();
 //   final List<Map<String, dynamic>> _messages = [];
 //   final ImagePicker _picker = ImagePicker();
+//   String? _userName;
+//   String? _userProfileImageUrl;
 
 //   @override
 //   void initState() {
 //     super.initState();
+//     _fetchUserInfo();
 //     _fetchMessages();
+//   }
+
+//   Future<void> _fetchUserInfo() async {
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user != null) {
+//       final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+//       if (userSnapshot.exists) {
+//         setState(() {
+//           _userName = userSnapshot.data()?['username'];
+//           _userProfileImageUrl = userSnapshot.data()?['profile_picture'];
+//         });
+//       }
+//     }
 //   }
 
 //   Future<void> _fetchMessages() async {
 //     final user = FirebaseAuth.instance.currentUser;
 //     if (user != null) {
 //       try {
-//         print('Fetching messages for userId: ${user.uid} and salonId: ${widget.salon.id}');
 //         final messagesSnapshot = await FirebaseFirestore.instance
 //             .collection('messages')
 //             .where('salonId', isEqualTo: widget.salon.id)
@@ -41,7 +57,6 @@
 //             .orderBy('timestamp', descending: true)
 //             .get();
 
-//         print('Messages fetched: ${messagesSnapshot.docs.length}');
 //         setState(() {
 //           _messages.clear();
 //           for (var doc in messagesSnapshot.docs) {
@@ -53,6 +68,8 @@
 //               'timestamp': (data['timestamp'] as Timestamp).toDate(),
 //               'isOwner': data['isOwner'] ?? false,
 //               'userId': data['userId'] ?? '',
+//               'userName': data['userName'] ?? '',
+//               'userProfileImageUrl': data['userProfileImageUrl'] ?? '',
 //               'messageId': doc.id,
 //             });
 //           }
@@ -73,16 +90,15 @@
 //         'timestamp': FieldValue.serverTimestamp(),
 //         'isOwner': false,
 //         'userId': user.uid,
+//         'userName': _userName,
+//         'userProfileImageUrl': _userProfileImageUrl,
 //         'salonId': widget.salon.id,
 //       };
 
-//       print('Sending message: $messageData'); // Debug print statement
-
 //       try {
 //         await FirebaseFirestore.instance.collection('messages').add(messageData);
-//         print('Message sent successfully'); // Debug print statement
 //       } catch (e) {
-//         print('Error sending message: $e'); // Debug print statement
+//         print('Error sending message: $e');
 //       }
 
 //       _messageController.clear();
@@ -99,10 +115,9 @@
 
 //       final snapshot = await uploadTask.whenComplete(() {});
 //       final downloadUrl = await snapshot.ref.getDownloadURL();
-//       print('File uploaded: $downloadUrl'); // Debug print statement
 //       return downloadUrl;
 //     } catch (e) {
-//       print('Error uploading file: $e'); // Debug print statement
+//       print('Error uploading file: $e');
 //       return null;
 //     }
 //   }
@@ -157,14 +172,6 @@
 //     return DateFormat('hh:mm a').format(timestamp);
 //   }
 
-//   Future<String?> _getUserProfileImage(String userId) async {
-//     final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-//     if (userSnapshot.exists) {
-//       return userSnapshot.data()?['profileImageUrl'];
-//     }
-//     return null;
-//   }
-
 //   Future<VideoPlayerController> _initializeVideoPlayer(String videoUrl) async {
 //     final controller = VideoPlayerController.network(videoUrl);
 //     await controller.initialize();
@@ -200,7 +207,7 @@
 //             CircleAvatar(
 //               backgroundImage: widget.salon.profileImageUrl.isNotEmpty
 //                   ? NetworkImage(widget.salon.profileImageUrl)
-//                   : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+//                   : const AssetImage('assets/images/user.png') as ImageProvider,
 //             ),
 //             const SizedBox(width: 10),
 //             Text(widget.salon.salonName),
@@ -246,7 +253,6 @@
 //               itemCount: _messages.length,
 //               itemBuilder: (context, index) {
 //                 final message = _messages[index];
-//                 final isOwner = message['isOwner'];
 //                 final isCurrentUser = message['userId'] == FirebaseAuth.instance.currentUser?.uid;
 
 //                 return Container(
@@ -256,97 +262,72 @@
 //                     crossAxisAlignment: CrossAxisAlignment.start,
 //                     children: [
 //                       if (!isCurrentUser) ...[
-//                         FutureBuilder<String?>(
-//                           future: _getUserProfileImage(message['userId']),
-//                           builder: (context, snapshot) {
-//                             if (snapshot.connectionState == ConnectionState.waiting) {
-//                               return const CircleAvatar(
-//                                 backgroundImage: AssetImage('assets/images/user.png'),
-//                                 radius: 20.0,
-//                               );
-//                             }
-//                             return CircleAvatar(
-//                               backgroundImage: snapshot.data != null
-//                                   ? NetworkImage(snapshot.data!)
-//                                   : const AssetImage('assets/images/user.png') as ImageProvider,
-//                               radius: 20.0,
-//                             );
-//                           },
+//                         CircleAvatar(
+//                           backgroundImage: message['userProfileImageUrl'].isNotEmpty
+//                               ? NetworkImage(message['userProfileImageUrl'])
+//                               : const AssetImage('assets/images/user.png') as ImageProvider,
+//                           radius: 20.0,
 //                         ),
 //                         const SizedBox(width: 8.0),
 //                       ],
-//                       Expanded(
+//                       Flexible(
 //                         child: Column(
-//                           crossAxisAlignment:
-//                               isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+//                           crossAxisAlignment: isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
 //                           children: [
-//                             if (message['text'].isNotEmpty)
+//                             if (message['text'] != null && message['text'].isNotEmpty)
 //                               Container(
-//                                 padding: const EdgeInsets.all(10.0),
+//                                 padding: const EdgeInsets.all(12.0),
 //                                 decoration: BoxDecoration(
-//                                   color: isCurrentUser
-//                                       ? Colors.orange[200]
-//                                       : const Color.fromARGB(255, 198, 144, 85),
-//                                   borderRadius: BorderRadius.circular(10.0),
+//                                   color: isCurrentUser ? hexStringToColor("#C0724A") : Colors.grey[300],
+//                                   borderRadius: BorderRadius.circular(8.0),
 //                                 ),
 //                                 child: Text(
 //                                   message['text'],
-//                                   style: const TextStyle(fontSize: 16.0),
+//                                   style: TextStyle(
+//                                     color: isCurrentUser ? Colors.white : Colors.black87,
+//                                   ),
 //                                 ),
 //                               ),
 //                             if (message['image'] != null)
 //                               Container(
-//                                 margin: const EdgeInsets.symmetric(vertical: 8.0),
-//                                 child: Image.network(
-//                                   message['image'],
-//                                   fit: BoxFit.cover,
-//                                   width: 200.0,
+//                                 padding: const EdgeInsets.all(4.0),
+//                                 decoration: BoxDecoration(
+//                                   color: isCurrentUser ? hexStringToColor("#C0724A") : Colors.grey[300],
+//                                   borderRadius: BorderRadius.circular(8.0),
 //                                 ),
+//                                 child: Image.network(message['image']),
 //                               ),
 //                             if (message['video'] != null)
-//                               Container(
-//                                 margin: const EdgeInsets.symmetric(vertical: 8.0),
-//                                 child: FutureBuilder<VideoPlayerController>(
-//                                   future: _initializeVideoPlayer(message['video']),
-//                                   builder: (context, snapshot) {
-//                                     if (snapshot.connectionState == ConnectionState.done &&
-//                                         snapshot.data != null) {
-//                                       return AspectRatio(
-//                                         aspectRatio: snapshot.data!.value.aspectRatio,
-//                                         child: VideoPlayer(snapshot.data!),
-//                                       );
-//                                     } else {
-//                                       return const CircularProgressIndicator();
-//                                     }
-//                                   },
-//                                 ),
+//                               FutureBuilder<VideoPlayerController>(
+//                                 future: _initializeVideoPlayer(message['video']),
+//                                 builder: (context, snapshot) {
+//                                   if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+//                                     return AspectRatio(
+//                                       aspectRatio: snapshot.data!.value.aspectRatio,
+//                                       child: VideoPlayer(snapshot.data!),
+//                                     );
+//                                   } else {
+//                                     return CircularProgressIndicator();
+//                                   }
+//                                 },
 //                               ),
-//                             const SizedBox(height: 5.0),
 //                             Text(
 //                               _formatTime(message['timestamp']),
-//                               style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+//                               style: const TextStyle(
+//                                 fontSize: 10,
+//                                 color: Colors.black54,
+//                               ),
 //                             ),
 //                           ],
 //                         ),
 //                       ),
 //                       if (isCurrentUser) ...[
 //                         const SizedBox(width: 8.0),
-//                         FutureBuilder<String?>(
-//                           future: _getUserProfileImage(message['userId']),
-//                           builder: (context, snapshot) {
-//                             if (snapshot.connectionState == ConnectionState.waiting) {
-//                               return const CircleAvatar(
-//                                 backgroundImage: AssetImage('assets/images/user.png'),
-//                                 radius: 20.0,
-//                               );
-//                             }
-//                             return CircleAvatar(
-//                               backgroundImage: snapshot.data != null
-//                                   ? NetworkImage(snapshot.data!)
-//                                   : const AssetImage('assets/images/user.png') as ImageProvider,
-//                               radius: 20.0,
-//                             );
-//                           },
+//                         CircleAvatar(
+//                           backgroundImage: message['userProfileImageUrl'].isNotEmpty
+//                               ? NetworkImage(message['userProfileImageUrl'])
+//                               : const AssetImage('assets/images/user.png') as ImageProvider,
+//                           radius: 20.0,
 //                         ),
 //                       ],
 //                     ],
@@ -355,79 +336,48 @@
 //               },
 //             ),
 //           ),
-//           _buildMessageInput(),
-//         ],
-//       ),
-//     );
-//   }
-
-//   Widget _buildMessageInput() {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-//       color: Colors.white,
-//       child: Row(
-//         children: [
-//           Expanded(
-//             child: TextField(
-//               controller: _messageController,
-//               decoration: const InputDecoration(
-//                 hintText: 'Enter a message...',
-//                 border: InputBorder.none,
-//               ),
+//           Padding(
+//             padding: const EdgeInsets.all(8.0),
+//             child: Row(
+//               children: [
+//                 IconButton(
+//                   icon: const Icon(Icons.photo),
+//                   onPressed: _pickImage,
+//                 ),
+//                 IconButton(
+//                   icon: const Icon(Icons.camera),
+//                   onPressed: _takePhoto,
+//                 ),
+//                 IconButton(
+//                   icon: const Icon(Icons.videocam),
+//                   onPressed: _pickVideo,
+//                 ),
+//                 IconButton(
+//                   icon: const Icon(Icons.video_call),
+//                   onPressed: _recordVideo,
+//                 ),
+//                 Expanded(
+//                   child: TextField(
+//                     controller: _messageController,
+//                     decoration: const InputDecoration(
+//                       hintText: 'Type your message...',
+//                     ),
+//                   ),
+//                 ),
+//                 IconButton(
+//                   icon: const Icon(Icons.send),
+//                   onPressed: () {
+//                     final text = _messageController.text.trim();
+//                     if (text.isNotEmpty) {
+//                       _sendMessage(text);
+//                     }
+//                   },
+//                 ),
+//               ],
 //             ),
 //           ),
-//           IconButton(
-//             icon: const Icon(Icons.send),
-//             onPressed: () {
-//               _sendMessage(_messageController.text);
-//             },
-//           ),
-//           PopupMenuButton<int>(
-//             icon: const Icon(Icons.attach_file),
-//             onSelected: (value) {
-//               switch (value) {
-//                 case 0:
-//                   _pickImage();
-//                   break;
-//                 case 1:
-//                   _takePhoto();
-//                   break;
-//                 case 2:
-//                   _pickVideo();
-//                   break;
-//                 case 3:
-//                   _recordVideo();
-//                   break;
-//               }
-//             },
-//             itemBuilder: (context) => [
-//               const PopupMenuItem(
-//                 value: 0,
-//                 child: Text('Pick Image'),
-//               ),
-//               const PopupMenuItem(
-//                 value: 1,
-//                 child: Text('Take Photo'),
-//               ),
-//               const PopupMenuItem(
-//                 value: 2,
-//                 child: Text('Pick Video'),
-//               ),
-//               const PopupMenuItem(
-//                 value: 3,
-//                 child: Text('Record Video'),
-//               ),
-//             ],
-//           ),
 //         ],
 //       ),
 //     );
-//   }
-
-//   Color hexStringToColor(String hexString) {
-//     final buffer = StringBuffer();
-//     if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
-//     buffer.write(hexString.replaceFirst('#', ''));
-//     return Color(int.parse(buffer.toString(), radix: 16));
 //   }
 // }

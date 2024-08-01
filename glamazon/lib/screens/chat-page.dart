@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:glamazon/models.dart';
+import 'package:glamazon/screens/appointments_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:image/image.dart' as img;
@@ -22,18 +23,33 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _messageController = TextEditingController();
   final List<Map<String, dynamic>> _messages = [];
   final ImagePicker _picker = ImagePicker();
+  String? _userName;
+  String? _userProfileImageUrl;
 
   @override
   void initState() {
     super.initState();
+    _fetchUserInfo();
     _fetchMessages();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
+      if (userSnapshot.exists) {
+        setState(() {
+          _userName = userSnapshot.data()?['username'];
+          _userProfileImageUrl = userSnapshot.data()?['profile_picture'];
+        });
+      }
+    }
   }
 
   Future<void> _fetchMessages() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       try {
-        print('Fetching messages for userId: ${user.uid} and salonId: ${widget.salon.id}');
         final messagesSnapshot = await FirebaseFirestore.instance
             .collection('messages')
             .where('salonId', isEqualTo: widget.salon.id)
@@ -41,7 +57,6 @@ class _ChatPageState extends State<ChatPage> {
             .orderBy('timestamp', descending: true)
             .get();
 
-        print('Messages fetched: ${messagesSnapshot.docs.length}');
         setState(() {
           _messages.clear();
           for (var doc in messagesSnapshot.docs) {
@@ -53,6 +68,8 @@ class _ChatPageState extends State<ChatPage> {
               'timestamp': (data['timestamp'] as Timestamp).toDate(),
               'isOwner': data['isOwner'] ?? false,
               'userId': data['userId'] ?? '',
+              'userName': data['userName'] ?? '',
+              'userProfileImageUrl': data['userProfileImageUrl'] ?? '',
               'messageId': doc.id,
             });
           }
@@ -73,16 +90,15 @@ class _ChatPageState extends State<ChatPage> {
         'timestamp': FieldValue.serverTimestamp(),
         'isOwner': false,
         'userId': user.uid,
+        'userName': _userName,
+        'userProfileImageUrl': _userProfileImageUrl,
         'salonId': widget.salon.id,
       };
 
-      print('Sending message: $messageData'); // Debug print statement
-
       try {
         await FirebaseFirestore.instance.collection('messages').add(messageData);
-        print('Message sent successfully'); // Debug print statement
       } catch (e) {
-        print('Error sending message: $e'); // Debug print statement
+        print('Error sending message: $e');
       }
 
       _messageController.clear();
@@ -99,10 +115,9 @@ class _ChatPageState extends State<ChatPage> {
 
       final snapshot = await uploadTask.whenComplete(() {});
       final downloadUrl = await snapshot.ref.getDownloadURL();
-      print('File uploaded: $downloadUrl'); // Debug print statement
       return downloadUrl;
     } catch (e) {
-      print('Error uploading file: $e'); // Debug print statement
+      print('Error uploading file: $e');
       return null;
     }
   }
@@ -157,14 +172,6 @@ class _ChatPageState extends State<ChatPage> {
     return DateFormat('hh:mm a').format(timestamp);
   }
 
-  Future<String?> _getUserProfileImage(String userId) async {
-    final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    if (userSnapshot.exists) {
-      return userSnapshot.data()?['profileImageUrl'];
-    }
-    return null;
-  }
-
   Future<VideoPlayerController> _initializeVideoPlayer(String videoUrl) async {
     final controller = VideoPlayerController.network(videoUrl);
     await controller.initialize();
@@ -200,7 +207,7 @@ class _ChatPageState extends State<ChatPage> {
             CircleAvatar(
               backgroundImage: widget.salon.profileImageUrl.isNotEmpty
                   ? NetworkImage(widget.salon.profileImageUrl)
-                  : const AssetImage('assets/images/default_profile.png') as ImageProvider,
+                  : const AssetImage('assets/images/user.png') as ImageProvider,
             ),
             const SizedBox(width: 10),
             Text(widget.salon.salonName),
@@ -246,7 +253,6 @@ class _ChatPageState extends State<ChatPage> {
               itemCount: _messages.length,
               itemBuilder: (context, index) {
                 final message = _messages[index];
-                // final isOwner = message['isOwner'];
                 final isCurrentUser = message['userId'] == FirebaseAuth.instance.currentUser?.uid;
 
                 return Container(
@@ -256,22 +262,11 @@ class _ChatPageState extends State<ChatPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (!isCurrentUser) ...[
-                        FutureBuilder<String?>(
-                          future: _getUserProfileImage(message['userId']),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState == ConnectionState.waiting) {
-                              return const CircleAvatar(
-                                backgroundImage: AssetImage('assets/images/user.png'),
-                                radius: 20.0,
-                              );
-                            }
-                            return CircleAvatar(
-                              backgroundImage: snapshot.data != null
-                                  ? NetworkImage(snapshot.data!)
-                                  : const AssetImage('assets/images/user.png') as ImageProvider,
-                              radius: 20.0,
-                            );
-                          },
+                        CircleAvatar(
+                          backgroundImage: message['userProfileImageUrl'].isNotEmpty
+                              ? NetworkImage(message['userProfileImageUrl'])
+                              : const AssetImage('assets/images/user.png') as ImageProvider,
+                          radius: 20.0,
                         ),
                         const SizedBox(width: 8.0),
                       ],
@@ -281,46 +276,47 @@ class _ChatPageState extends State<ChatPage> {
                           children: [
                             if (message['text'] != null && message['text'].isNotEmpty)
                               Container(
-                                padding: const EdgeInsets.all(10.0),
+                                padding: const EdgeInsets.all(12.0),
                                 decoration: BoxDecoration(
-                                  color: isCurrentUser ? Color.fromARGB(255, 241, 211, 60) : Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(10.0),
+                                  color: isCurrentUser ? hexStringToColor("#C0724A") : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8.0),
                                 ),
                                 child: Text(
                                   message['text'],
-                                  style: const TextStyle(fontSize: 16.0),
+                                  style: TextStyle(
+                                    color: isCurrentUser ? Colors.white : Colors.black87,
+                                  ),
                                 ),
                               ),
                             if (message['image'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: Image.network(
-                                  message['image'],
-                                  width: 200,
-                                  height: 200,
-                                  fit: BoxFit.cover,
+                              Container(
+                                padding: const EdgeInsets.all(4.0),
+                                decoration: BoxDecoration(
+                                  color: isCurrentUser ? hexStringToColor("#C0724A") : Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8.0),
                                 ),
+                                child: Image.network(message['image']),
                               ),
                             if (message['video'] != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 8.0),
-                                child: FutureBuilder<VideoPlayerController>(
-                                  future: _initializeVideoPlayer(message['video']),
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.done) {
-                                      return AspectRatio(
-                                        aspectRatio: snapshot.data!.value.aspectRatio,
-                                        child: VideoPlayer(snapshot.data!),
-                                      );
-                                    } else {
-                                      return const CircularProgressIndicator();
-                                    }
-                                  },
-                                ),
+                              FutureBuilder<VideoPlayerController>(
+                                future: _initializeVideoPlayer(message['video']),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                                    return AspectRatio(
+                                      aspectRatio: snapshot.data!.value.aspectRatio,
+                                      child: VideoPlayer(snapshot.data!),
+                                    );
+                                  } else {
+                                    return CircularProgressIndicator();
+                                  }
+                                },
                               ),
                             Text(
                               _formatTime(message['timestamp']),
-                              style: const TextStyle(fontSize: 12.0, color: Colors.grey),
+                              style: const TextStyle(
+                                fontSize: 10,
+                                color: Colors.black54,
+                              ),
                             ),
                           ],
                         ),
@@ -328,7 +324,9 @@ class _ChatPageState extends State<ChatPage> {
                       if (isCurrentUser) ...[
                         const SizedBox(width: 8.0),
                         CircleAvatar(
-                          backgroundImage: const AssetImage('assets/images/default_profile.png'),
+                          backgroundImage: message['userProfileImageUrl'].isNotEmpty
+                              ? NetworkImage(message['userProfileImageUrl'])
+                              : const AssetImage('assets/images/user.png') as ImageProvider,
                           radius: 20.0,
                         ),
                       ],
@@ -338,87 +336,40 @@ class _ChatPageState extends State<ChatPage> {
               },
             ),
           ),
-          Container(
+          Padding(
             padding: const EdgeInsets.all(8.0),
-            color: Colors.white,
             child: Row(
               children: [
-                PopupMenuButton<int>(
-                  onSelected: (value) {
-                    switch (value) {
-                      case 0:
-                        _pickImage();
-                        break;
-                      case 1:
-                        _takePhoto();
-                        break;
-                      case 2:
-                        _pickVideo();
-                        break;
-                      case 3:
-                        _recordVideo();
-                        break;
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    PopupMenuItem(
-                      value: 0,
-                      child: Row(
-                        children: const [
-                          Icon(Icons.photo_library, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text('Pick Image'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(
-                        children: const [
-                          Icon(Icons.camera_alt, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text('Take Photo'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 2,
-                      child: Row(
-                        children: const [
-                          Icon(Icons.video_library, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text('Pick Video'),
-                        ],
-                      ),
-                    ),
-                    PopupMenuItem(
-                      value: 3,
-                      child: Row(
-                        children: const [
-                          Icon(Icons.videocam, color: Colors.black),
-                          SizedBox(width: 8),
-                          Text('Record Video'),
-                        ],
-                      ),
-                    ),
-                  ],
-                  child: const Icon(Icons.attach_file, color: Colors.black),
+                IconButton(
+                  icon: const Icon(Icons.photo),
+                  onPressed: _pickImage,
                 ),
-                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.camera),
+                  onPressed: _takePhoto,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: _pickVideo,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.video_call),
+                  onPressed: _recordVideo,
+                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
                     decoration: const InputDecoration(
-                      hintText: 'Type a message...',
-                      border: InputBorder.none,
+                      hintText: 'Type your message...',
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send, color: Colors.black),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
-                    if (_messageController.text.isNotEmpty) {
-                      _sendMessage(_messageController.text);
+                    final text = _messageController.text.trim();
+                    if (text.isNotEmpty) {
+                      _sendMessage(text);
                     }
                   },
                 ),
@@ -429,12 +380,4 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
-}
-
-Color hexStringToColor(String hexColor) {
-  hexColor = hexColor.toUpperCase().replaceAll("#", "");
-  if (hexColor.length == 6) {
-    hexColor = "FF$hexColor";
-  }
-  return Color(int.parse(hexColor, radix: 16));
 }
