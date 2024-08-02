@@ -381,3 +381,106 @@
 //     );
 //   }
 // }
+
+
+
+
+
+
+
+
+
+
+// import 'package:flutter/material.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:glamazon/screens/ownerchat_page.dart';
+
+// class OwnerChatMainPage extends StatefulWidget {
+//   @override
+//   _OwnerChatMainPageState createState() => _OwnerChatMainPageState();
+// }
+
+// class _OwnerChatMainPageState extends State<OwnerChatMainPage> {
+//   final List<Map<String, dynamic>> _users = [];
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _fetchUsers();
+//   }
+
+//   Future<void> _fetchUsers() async {
+//     final user = FirebaseAuth.instance.currentUser;
+//     if (user != null) {
+//       final messagesSnapshot = await FirebaseFirestore.instance
+//           .collection('messages')
+//           .where('isOwner', isEqualTo: false)
+//           .get();
+
+//       final userIds = messagesSnapshot.docs
+//           .map((doc) => doc.data()['userId'] as String)
+//           .toSet()
+//           .toList();
+
+//       final usersSnapshot = await FirebaseFirestore.instance
+//           .collection('users')
+//           .where(FieldPath.documentId, whereIn: userIds)
+//           .get();
+
+//       setState(() {
+//         _users.clear();
+//         for (var doc in usersSnapshot.docs) {
+//           final data = doc.data();
+//           _users.add({
+//             'userId': doc.id,
+//             'username': data['username'],
+//             'profile_picture': data['profile_picture'],
+//           });
+//         }
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
+//       appBar: AppBar(
+//         title: const Text('Owner Chat Main Page'),
+//         backgroundColor: hexStringToColor("#C0724A"),
+//       ),
+//       body: ListView.builder(
+//         itemCount: _users.length,
+//         itemBuilder: (context, index) {
+//           final user = _users[index];
+//           return ListTile(
+//             leading: CircleAvatar(
+//               backgroundImage: user['profile_picture'] != null
+//                   ? NetworkImage(user['profile_picture'])
+//                   : const AssetImage('assets/images/user.png') as ImageProvider,
+//             ),
+//             title: Text(user['username']),
+//             onTap: () {
+//               Navigator.push(
+//                 context,
+//                 MaterialPageRoute(
+//                   builder: (context) => OwnerChatPage(
+//                     userId: user['userId'],
+//                     userName: user['username'],
+//                     userProfileImageUrl: user['profile_picture'],
+//                   ),
+//                 ),
+//               );
+//             },
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
+
+// Color hexStringToColor(String hexColor) {
+//   final color = hexColor.replaceAll("#", "");
+//   return Color(int.parse("FF$color", radix: 16));
+// }

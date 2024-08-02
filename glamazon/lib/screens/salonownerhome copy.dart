@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:glamazon/screens/auto_image_slider.dart';
+import 'package:glamazon/screens/customer_chats.dart';
 import 'package:glamazon/screens/owner-gallery.dart';
-import 'package:glamazon/screens/ownerchat_page.dart';
 import 'package:glamazon/screens/profile_page.dart';
 import 'package:glamazon/screens/settings_owner.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -17,6 +17,7 @@ class SalonOwnerHome extends StatefulWidget {
 }
 
 class _SalonOwnerHomeState extends State<SalonOwnerHome> {
+  String salonId = '';
   String salonName = '';
   String location = '';
   String? profileImageUrl;
@@ -36,6 +37,7 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
         final data = profileDoc.data();
         if (data != null) {
           setState(() {
+            salonId = profileDoc.id;
             salonName = data['salonName'] ?? 'Salon Name';
             location = data['location'] ?? 'Location';
             profileImageUrl = data['profileImageUrl'];
@@ -162,7 +164,11 @@ class _SalonOwnerHomeState extends State<SalonOwnerHome> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => const OwnerChatPage(),
+                                builder: (context) => OwnerChatMainPage(
+                                  salonId: salonId,
+                                  salonName: salonName,
+                                  salonProfileImageUrl: profileImageUrl ?? '',
+                                ),
                               ),
                             );
                           },

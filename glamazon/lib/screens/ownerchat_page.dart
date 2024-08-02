@@ -9,7 +9,18 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:video_player/video_player.dart';
 
 class OwnerChatPage extends StatefulWidget {
-  const OwnerChatPage({super.key});
+  final String userId;
+  final String userName;
+  final String userProfileImageUrl;
+  final String ownerProfileImageUrl;
+
+  const OwnerChatPage({
+    super.key,
+    required this.userId,
+    required this.userName,
+    required this.userProfileImageUrl,
+    required this.ownerProfileImageUrl,
+  });
 
   @override
   _OwnerChatPageState createState() => _OwnerChatPageState();
@@ -31,6 +42,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
     if (user != null) {
       final messagesSnapshot = await FirebaseFirestore.instance
           .collection('messages')
+          .where('userId', isEqualTo: widget.userId)
           .orderBy('timestamp', descending: true)
           .get();
 
@@ -61,7 +73,7 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
         'video': video != null ? await _uploadFile(video) : null,
         'timestamp': FieldValue.serverTimestamp(),
         'isOwner': true,
-        'userId': user.uid,
+        'userId': widget.userId,
       };
 
       await FirebaseFirestore.instance.collection('messages').add(messageData);
@@ -138,7 +150,10 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
   }
 
   Future<void> _clearAllChats() async {
-    final messages = await FirebaseFirestore.instance.collection('messages').get();
+    final messages = await FirebaseFirestore.instance
+        .collection('messages')
+        .where('userId', isEqualTo: widget.userId)
+        .get();
     for (var doc in messages.docs) {
       await FirebaseFirestore.instance.collection('messages').doc(doc.id).delete();
     }
@@ -150,7 +165,17 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
-        title: const Text('Owner Chat'),
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: widget.userProfileImageUrl.isNotEmpty
+                  ? NetworkImage(widget.userProfileImageUrl)
+                  : const AssetImage('assets/images/user.png') as ImageProvider,
+            ),
+            const SizedBox(width: 10),
+            Text(widget.userName),
+          ],
+        ),
         backgroundColor: hexStringToColor("#C0724A"),
         actions: [
           IconButton(
@@ -199,8 +224,10 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       if (!isOwner)
-                        const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/user.png'),
+                        CircleAvatar(
+                          backgroundImage: widget.userProfileImageUrl.isNotEmpty
+                              ? NetworkImage(widget.userProfileImageUrl)
+                              : const AssetImage('assets/images/user.png') as ImageProvider,
                           radius: 20.0,
                         ),
                       const SizedBox(width: 10.0),
@@ -246,54 +273,35 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
                                         fontStyle: FontStyle.italic,
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => VideoPlayerPage(videoUrl: message['video']),
-                                          ),
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8.0),
-                                        decoration: BoxDecoration(
-                                          color: Colors.black,
-                                          borderRadius: BorderRadius.circular(8.0),
-                                        ),
-                                        child: const Icon(
-                                          Icons.play_circle_outline,
-                                          color: Colors.white,
-                                          size: 48.0,
-                                        ),
-                                      ),
-                                    ),
-                                  ] else if (message['text'].isNotEmpty) ...[
-                                    Text(
-                                      message['text'],
-                                      style: const TextStyle(
-                                        color: Colors.white,
+                                    Container(
+                                      width: MediaQuery.of(context).size.width * 0.6,
+                                      child: AspectRatio(
+                                        aspectRatio: 16 / 9,
+                                        child: VideoPlayerWidget(url: message['video']),
                                       ),
                                     ),
                                   ],
+                                  if (message['text'].isNotEmpty)
+                                    Text(
+                                      message['text'],
+                                      style: const TextStyle(color: Colors.white),
+                                    ),
                                 ],
                               ),
                             ),
-                            const SizedBox(height: 5.0),
                             Text(
                               _formatTime(message['timestamp']),
-                              style: const TextStyle(
-                                fontSize: 12.0,
-                                color: Colors.black54,
-                              ),
+                              style: const TextStyle(fontSize: 12, color: Colors.grey),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(width: 10.0),
                       if (isOwner)
-                        const CircleAvatar(
-                          backgroundImage: AssetImage('assets/images/salon_owner.png'),
+                        CircleAvatar(
+                          backgroundImage: widget.ownerProfileImageUrl.isNotEmpty
+                              ? NetworkImage(widget.ownerProfileImageUrl)
+                              : const AssetImage('assets/images/user.png') as ImageProvider,
                           radius: 20.0,
                         ),
                     ],
@@ -302,78 +310,37 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
               },
             ),
           ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.grey.shade300)),
-            ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {
-                    showModalBottomSheet(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.camera_alt),
-                              title: const Text('Take a photo'),
-                              onTap: () {
-                                _takePhoto();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.photo_library),
-                              title: const Text('Choose from gallery'),
-                              onTap: () {
-                                _pickImage();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.video_library),
-                              title: const Text('Pick video from gallery'),
-                              onTap: () {
-                                _pickVideo();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.videocam),
-                              title: const Text('Record video'),
-                              onTap: () {
-                                _recordVideo();
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,
                     decoration: const InputDecoration(
-                      hintText: 'Type a message...',
-                      border: InputBorder.none,
+                      hintText: 'Enter your message...',
                     ),
                   ),
                 ),
                 IconButton(
+                  icon: const Icon(Icons.photo),
+                  onPressed: _pickImage,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.camera_alt),
+                  onPressed: _takePhoto,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.video_library),
+                  onPressed: _pickVideo,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.videocam),
+                  onPressed: _recordVideo,
+                ),
+                IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: () {
-                    final messageText = _messageController.text.trim();
-                    if (messageText.isNotEmpty) {
-                      _sendMessage(messageText);
-                    }
-                  },
+                  onPressed: () => _sendMessage(_messageController.text),
                 ),
               ],
             ),
@@ -382,71 +349,51 @@ class _OwnerChatPageState extends State<OwnerChatPage> {
       ),
     );
   }
+
+  Color hexStringToColor(String hexColor) {
+    hexColor = hexColor.toUpperCase().replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF$hexColor";
+    }
+    return Color(int.parse(hexColor, radix: 16));
+  }
 }
 
-class VideoPlayerPage extends StatefulWidget {
-  final String videoUrl;
+class VideoPlayerWidget extends StatefulWidget {
+  final String url;
 
-  const VideoPlayerPage({Key? key, required this.videoUrl}) : super(key: key);
+  const VideoPlayerWidget({required this.url});
 
   @override
-  _VideoPlayerPageState createState() => _VideoPlayerPageState();
+  _VideoPlayerWidgetState createState() => _VideoPlayerWidgetState();
 }
 
-class _VideoPlayerPageState extends State<VideoPlayerPage> {
+class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
   late VideoPlayerController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.network(widget.videoUrl)
+    _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
         setState(() {});
+        _controller.play();
       });
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Video Player'),
-        backgroundColor: hexStringToColor("#C0724A"),
-      ),
-      body: Center(
-        child: _controller.value.isInitialized
-            ? AspectRatio(
-                aspectRatio: _controller.value.aspectRatio,
-                child: VideoPlayer(_controller),
-              )
-            : const CircularProgressIndicator(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            if (_controller.value.isPlaying) {
-              _controller.pause();
-            } else {
-              _controller.play();
-            }
-          });
-        },
-        child: Icon(
-          _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
-        ),
-      ),
-    );
+  void dispose() {
+    super.dispose();
+    _controller.dispose();
   }
 
   @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+  Widget build(BuildContext context) {
+    return _controller.value.isInitialized
+        ? AspectRatio(
+            aspectRatio: _controller.value.aspectRatio,
+            child: VideoPlayer(_controller),
+          )
+        : const Center(child: CircularProgressIndicator());
   }
-}
-
-Color hexStringToColor(String hexString) {
-  final buffer = StringBuffer();
-  if (hexString.length == 7 || hexString.length == 9) buffer.write('ff');
-  buffer.write(hexString.replaceFirst('#', ''));
-  return Color(int.parse(buffer.toString(), radix: 16));
 }
