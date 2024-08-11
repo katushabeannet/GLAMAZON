@@ -15,7 +15,9 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _confirmPasswordTextController = TextEditingController();
-  bool _isLoading = false; // Added variable to manage loading state
+  bool _isLoading = false;
+  String? _errorMessage;
+  String? _successMessage; // Added variable to store success message
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         decoration: const BoxDecoration(
-          color: Color.fromARGB(255, 250, 227, 197), // Single background color
+          color: Color.fromARGB(255, 250, 227, 197),
         ),
         child: SingleChildScrollView(
           child: Padding(
@@ -32,6 +34,42 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
                 20, MediaQuery.of(context).size.height * 0.1, 20, 0),
             child: Column(
               children: <Widget>[
+                if (_errorMessage != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(10),
+                    color: Colors.redAccent,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error, color: Colors.white),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _errorMessage!,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (_successMessage != null) // Display success message
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 20),
+                    padding: const EdgeInsets.all(10),
+                    color: Colors.greenAccent,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, color: Colors.white),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            _successMessage!,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 logoWidget("assets/images/logo3.png"),
                 const SizedBox(
                   height: 30,
@@ -54,33 +92,7 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
                 _isLoading
                     ? const CircularProgressIndicator()
                     : signInSignUpButton(context, false, () {
-                        if (_passwordTextController.text == _confirmPasswordTextController.text) {
-                          setState(() {
-                            _isLoading = true; // Start loading
-                          });
-                          FirebaseAuth.instance.createUserWithEmailAndPassword(
-                            email: _emailTextController.text,
-                            password: _passwordTextController.text,
-                          ).then((userCredential) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const EditProfilePage()),
-                            );
-                          }).catchError((error) {
-                            print("Error: ${error.toString()}");
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text('Error: ${error.toString()}')),
-                            );
-                          }).whenComplete(() {
-                            setState(() {
-                              _isLoading = false; // Stop loading
-                            });
-                          });
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Passwords do not match')),
-                          );
-                        }
+                        _signUp();
                       }),
                 signUpOption(context),
                 const SizedBox(
@@ -92,6 +104,77 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
         ),
       ),
     );
+  }
+
+  Future<void> _signUp() async {
+    if (_passwordTextController.text != _confirmPasswordTextController.text) {
+      setState(() {
+        _errorMessage = 'Passwords do not match';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _successMessage = null;
+    });
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailTextController.text,
+        password: _passwordTextController.text,
+      );
+
+      // Send email verification
+      User? user = userCredential.user;
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+        setState(() {
+          _successMessage = 'Registration successful! A verification email has been sent.';
+        });
+      }
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EditProfilePage()),
+      );
+    } on FirebaseAuthException catch (e) {
+      String errorMessage;
+
+      switch (e.code) {
+        case 'email-already-in-use':
+          errorMessage = 'The email address is already in use by another account.';
+          break;
+        case 'invalid-email':
+          errorMessage = 'The email address is not valid.';
+          break;
+        case 'weak-password':
+          errorMessage = 'The password is too weak. It should be at least 6 characters long.';
+          break;
+        case 'operation-not-allowed':
+          errorMessage = 'This sign-up method is not allowed.';
+          break;
+        case 'network-request-failed':
+          errorMessage = 'Network error. Please check your internet connection.';
+          break;
+        default:
+          errorMessage = 'An unknown error occurred. Please try again.';
+      }
+
+      setState(() {
+        _errorMessage = errorMessage;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'An error occurred. Please try again later.';
+      });
+      print("Error: ${e.toString()}");
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   Row signUpOption(BuildContext context) {
@@ -106,7 +189,7 @@ class _SalonOwnerSignUpState extends State<SalonOwnerSignUp> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => SalonOwnerLogin()),
+              MaterialPageRoute(builder: (context) => const SalonOwnerLogin()),
             );
           },
           child: const Text(
