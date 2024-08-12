@@ -15,7 +15,7 @@ class _SignInState extends State<SignIn> {
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _passwordTextController = TextEditingController();
   bool _isLoading = false;
-  String? _errorMessage; // Added variable to store error message
+  String? _errorMessage; // Variable to store error message
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +35,11 @@ class _SignInState extends State<SignIn> {
                       20, MediaQuery.of(context).size.height * 0.1, 20, 0),
                   child: Column(
                     children: <Widget>[
-                      if (_errorMessage != null) // Display error message at the top
+                      logoWidget("assets/images/logo3.png"),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      if (_errorMessage != null) // Display error message above text inputs
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: Text(
@@ -43,10 +47,6 @@ class _SignInState extends State<SignIn> {
                             style: const TextStyle(color: Colors.red, fontSize: 16.0),
                           ),
                         ),
-                      logoWidget("assets/images/logo3.png"),
-                      const SizedBox(
-                        height: 30,
-                      ),
                       reusableTextField("Enter Your Email", Icons.email_outlined,
                           false, _emailTextController),
                       const SizedBox(
@@ -80,7 +80,7 @@ class _SignInState extends State<SignIn> {
       _isLoading = true;
       _errorMessage = null; // Reset error message on new attempt
     });
-    
+
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: _emailTextController.text,
