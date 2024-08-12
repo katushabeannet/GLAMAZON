@@ -99,53 +99,89 @@ class _BookingPageState extends State<BookingPage> {
     }
   }
 
-  Future<void> _submitBooking() async {
-    if (selectedService != null) {
-      setState(() {
-        isLoading = true;
-      });
-      try {
-        User? user = FirebaseAuth.instance.currentUser;
-        if (user == null) {
-          // Handle the case where the user is not logged in
-          print('No user is logged in');
-          return;
-        }
-
-        var userSnapshot = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-
-        if (userSnapshot.exists) {
-          var userData = userSnapshot.data()!;
-          var userName = userData['username'];
-          var userPhone = userData['phone'];
-
-          await FirebaseFirestore.instance.collection('appointments').add({
-            'salonId': widget.salonId,
-            'salonName': widget.salonName, // Include salonName
-            'service': selectedService,
-            'date': Timestamp.fromDate(selectedDate),
-            'time': {
-              'hour': selectedTime.hour,
-              'minute': selectedTime.minute,
-            },
-            'userId': user.uid, // Include userId for mapping
-            'userName': userName,
-            'userPhone': userPhone,
-          });
-          _fetchAppointments();
-        }
-      } catch (e) {
-        print('Error booking appointment: $e');
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
+Future<void> _submitBooking() async {
+  if (selectedService != null) {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        // Handle the case where the user is not logged in
+        print('No user is logged in');
+        return;
       }
+
+      var startTime = DateTime(selectedDate.year, selectedDate.month, selectedDate.day,
+          selectedTime.hour, selectedTime.minute);
+      var endTime = startTime.add(const Duration(hours: 2));
+
+      var conflictingAppointmentsSnapshot = await FirebaseFirestore.instance
+          .collection('appointments')
+          .where('salonId', isEqualTo: widget.salonId)
+          .where('service', isEqualTo: selectedService)
+          .where('date', isEqualTo: Timestamp.fromDate(selectedDate))
+          .get();
+
+      var hasConflict = conflictingAppointmentsSnapshot.docs.any((doc) {
+        var data = doc.data();
+        var appointmentTime = (data['date'] as Timestamp).toDate();
+        var appointmentStartTime = DateTime(appointmentTime.year, appointmentTime.month, appointmentTime.day,
+            data['time']['hour'], data['time']['minute']);
+        var appointmentEndTime = appointmentStartTime.add(const Duration(hours: 2));
+
+        // Check if the selected time overlaps with any existing appointment
+        return (startTime.isBefore(appointmentEndTime) && endTime.isAfter(appointmentStartTime));
+      });
+
+      if (hasConflict) {
+        // Show a pop-up message indicating the time slot is taken
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Sorry, but that time slot for that service has already been taken.'),
+            backgroundColor: Colors.redAccent,
+            duration: Duration(seconds: 3),
+          ),
+        );
+        return;
+      }
+
+      var userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (userSnapshot.exists) {
+        var userData = userSnapshot.data()!;
+        var userName = userData['username'];
+        var userPhone = userData['phone'];
+
+        await FirebaseFirestore.instance.collection('appointments').add({
+          'salonId': widget.salonId,
+          'salonName': widget.salonName, // Include salonName
+          'service': selectedService,
+          'date': Timestamp.fromDate(selectedDate),
+          'time': {
+            'hour': selectedTime.hour,
+            'minute': selectedTime.minute,
+          },
+          'userId': user.uid, // Include userId for mapping
+          'userName': userName,
+          'userPhone': userPhone,
+        });
+        _fetchAppointments();
+      }
+    } catch (e) {
+      print('Error booking appointment: $e');
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
+}
+
+
 
   Future<void> _deleteAppointment(String id) async {
     setState(() {

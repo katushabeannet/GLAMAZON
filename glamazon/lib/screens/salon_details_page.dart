@@ -102,6 +102,7 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CircleAvatar(
                     radius: 50,
@@ -110,61 +111,66 @@ class _SalonDetailPageState extends State<SalonDetailPage> {
                         : const AssetImage('assets/images/default_profile.png') as ImageProvider,
                   ),
                   const SizedBox(width: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.salon.salonName,
-                        style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87),
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BookingPage(
-                                    salonId: widget.salon.id,
-                                    salonName: widget.salon.salonName,
-                                  ),
+                  Expanded( // Wrap the column in Expanded to prevent overflow
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.salon.salonName,
+                          style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Flexible( // Wrap ElevatedButtons in Flexible to prevent overflow
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => BookingPage(
+                                        salonId: widget.salon.id,
+                                        salonName: widget.salon.salonName,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 164, 100, 68),
                                 ),
-                              );
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 164, 100, 68),
+                                child: const Text('Book Now', style: TextStyle(color: Colors.white)),
+                              ),
                             ),
-                            child: const Text('Book Now', style: TextStyle(color: Colors.white)),
-                          ),
-
-                          const SizedBox(width: 10),
-                          ElevatedButton(
-                            onPressed: () async {
-                              final result = await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => RatingsPage(
-                                          salonId: widget.salon.id,
-                                        )),
-                              );
-                              if (result != null) {
-                                setState(() {
-                                  ratings.add(result);
-                                });
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color.fromARGB(255, 164, 100, 68),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  final result = await Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => RatingsPage(
+                                            salonId: widget.salon.id,
+                                          )),
+                                  );
+                                  if (result != null) {
+                                    setState(() {
+                                      ratings.add(result);
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color.fromARGB(255, 164, 100, 68),
+                                ),
+                                child: const Text('Rate Us', style: TextStyle(color: Colors.white)),
+                              ),
                             ),
-                            child: const Text('Rate Us', style: TextStyle(color: Colors.white)),
-                          ),
-                        ],
-                      ),
-                    ],
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

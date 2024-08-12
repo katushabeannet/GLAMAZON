@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:glamazon/screens/appointments_page.dart';
+import 'package:glamazon/screens/customer_chats.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerPage extends StatefulWidget {

@@ -1,18 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:glamazon/screens/customer-notification.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class AppointmentsPage extends StatelessWidget {
   const AppointmentsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Handle notification tap when app is in the background or terminated
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      final data = message.data;
+      
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NotificationDetailPage(
+            appointmentId: data['appointmentId'] ?? '',
+            title: data['title'] ?? 'No Title',
+            message: data['message'] ?? 'No Message',
+            dateTime: DateTime.parse(data['dateTime'] ?? DateTime.now().toString()),
+            userName: data['userName'] ?? 'Unknown User',
+            salonName: data['salonName'] ?? 'Unknown Salon',
+            service: data['service'] ?? 'N/A',
+            time: data['time'] ?? 'N/A',
+            phoneNumber: data['phoneNumber'] ?? 'N/A',
+          ),
+        ),
+      );
+    });
+
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 248, 236, 220),
       appBar: AppBar(
         title: const Text('Appointments'),
-        backgroundColor: hexStringToColor("#C0724A"), // Matching color
+        backgroundColor: hexStringToColor("#C0724A"),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -22,11 +46,9 @@ class AppointmentsPage extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Center(child: Text('No appointments found.'));
             }
@@ -38,9 +60,9 @@ class AppointmentsPage extends StatelessWidget {
               itemBuilder: (context, index) {
                 final appointment = appointments[index];
                 final requestedTime = appointment['time'];
-                DateTime appointmentDateTime = appointment['date'] != null 
-                    ? (appointment['date'] as Timestamp).toDate() 
-                    : DateTime.now(); // Default to now if the date is null
+                DateTime appointmentDateTime = appointment['date'] != null
+                    ? (appointment['date'] as Timestamp).toDate()
+                    : DateTime.now();
 
                 return FutureBuilder<DocumentSnapshot>(
                   future: _fetchUserDetails(appointment['userId']),
@@ -48,11 +70,9 @@ class AppointmentsPage extends StatelessWidget {
                     if (userSnapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
                     }
-
                     if (userSnapshot.hasError) {
                       return Center(child: Text('Error: ${userSnapshot.error}'));
                     }
-
                     if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
                       return const Center(child: Text('User details not found.'));
                     }
@@ -65,7 +85,7 @@ class AppointmentsPage extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: 16.0),
                       child: Card(
                         elevation: 4.0,
-                        color: hexStringToColor("#E0A680"), // Lighter sienna color
+                        color: hexStringToColor("#E0A680"),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16.0),
                         ),
@@ -148,13 +168,12 @@ class AppointmentsPage extends StatelessWidget {
       rethrow;
     }
   }
-}
 
-// Utility function to convert hex string to color
-Color hexStringToColor(String hexColor) {
-  hexColor = hexColor.toUpperCase().replaceAll("#", "");
-  if (hexColor.length == 6) {
-    hexColor = "FF$hexColor";
+  Color hexStringToColor(String hexColor) {
+    hexColor = hexColor.toUpperCase().replaceAll("#", "");
+    if (hexColor.length == 6) {
+      hexColor = "FF$hexColor";
+    }
+    return Color(int.parse(hexColor, radix: 16));
   }
-  return Color(int.parse(hexColor, radix: 16));
 }
