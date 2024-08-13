@@ -316,150 +316,164 @@ Future<void> _submitBooking() async {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 248, 236, 220),
-      appBar: AppBar(
-        title: Text('Book at ${widget.salonName}', style: const TextStyle(color: Colors.black)),
-        backgroundColor: const Color.fromARGB(179, 181, 81, 31),
-      ),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    DropdownButtonFormField<String>(
-                      value: selectedService,
-                      decoration: const InputDecoration(
-                        labelText: 'Select Service',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: services.map((service) {
-                        return DropdownMenuItem<String>(
-                          value: service,
-                          child: Text(service),
-                        );
-                      }).toList(),
-                      onChanged: (newValue) {
-                        setState(() {
-                          selectedService = newValue;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    ListTile(
-                      title: Text("Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
-                      trailing: const Icon(Icons.calendar_today),
-                      onTap: () async {
-                        final DateTime? picked = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(2000),
-                          lastDate: DateTime(2101),
-                        );
-                        if (picked != null && picked != selectedDate) {
-                          setState(() {
-                            selectedDate = picked;
-                          });
-                        }
-                      },
-                    ),
-                    ListTile(
-                      title: Text("Time: ${selectedTime.format(context)}"),
-                      trailing: const Icon(Icons.access_time),
-                      onTap: () async {
-                        final TimeOfDay? picked = await showTimePicker(
-                          context: context,
-                          initialTime: selectedTime,
-                        );
-                        if (picked != null && picked != selectedTime) {
-                          setState(() {
-                            selectedTime = picked;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: _submitBooking,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Change the button color here
-                      ),
-                      child: const Text('Book Appointment'),
-                    ),
-                    const SizedBox(height: 16.0),
-                    const Text(
-                      'Your Appointments:',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8.0),
-                    ...appointments.map((appointment) {
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 8.0),
-                        color: Colors.transparent, // Set background to transparent
-                        elevation: 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31), width: 1), // Thin golden border
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Service: ${appointment['service']}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFA0522D), // Sienna color
-                                ),
-                              ),
-                              const SizedBox(height: 4.0),
-                              Text('Date: ${DateFormat('yyyy-MM-dd').format(appointment['date'])}'),
-                              const SizedBox(height: 4.0),
-                              Text('Time: ${appointment['time'].format(context)}'),
-                              const SizedBox(height: 8.0),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      _showRescheduleDialog(
-                                        appointment['id'],
-                                        appointment['date'],
-                                        appointment['time'],
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31)), // Thin golden border
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8.0),
-                                      ),
-                                    ),
-                                    child: const Text('Reschedule'),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () {
-                                      _showDeleteConfirmationDialog(appointment['id']);
-                                    },
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ],
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: const Color.fromARGB(255, 248, 236, 220),
+    appBar: AppBar(
+      title: Text('Book at ${widget.salonName}', style: const TextStyle(color: Colors.black)),
+      backgroundColor: const Color.fromARGB(179, 181, 81, 31),
+    ),
+    body: isLoading
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [
+              Center(child: CircularProgressIndicator()),
+              SizedBox(height: 16.0),  // Add some space between the loader and text
+              Text(
+                'Working on it ...',
+                style: TextStyle(
+                  fontSize: 16.0,
+                  color: Colors.black54,  // You can customize the color
                 ),
               ),
+            ],
+          )
+        : SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedService,
+                    decoration: const InputDecoration(
+                      labelText: 'Select Service',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: services.map((service) {
+                      return DropdownMenuItem<String>(
+                        value: service,
+                        child: Text(service),
+                      );
+                    }).toList(),
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectedService = newValue;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  ListTile(
+                    title: Text("Date: ${DateFormat('yyyy-MM-dd').format(selectedDate)}"),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final DateTime? picked = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2101),
+                      );
+                      if (picked != null && picked != selectedDate) {
+                        setState(() {
+                          selectedDate = picked;
+                        });
+                      }
+                    },
+                  ),
+                  ListTile(
+                    title: Text("Time: ${selectedTime.format(context)}"),
+                    trailing: const Icon(Icons.access_time),
+                    onTap: () async {
+                      final TimeOfDay? picked = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime,
+                      );
+                      if (picked != null && picked != selectedTime) {
+                        setState(() {
+                          selectedTime = picked;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16.0),
+                  ElevatedButton(
+                    onPressed: _submitBooking,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(179, 181, 81, 31), // Change the button color here
+                    ),
+                    child: const Text('Book Appointment'),
+                  ),
+                  const SizedBox(height: 16.0),
+                  const Text(
+                    'Your Appointments:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8.0),
+                  ...appointments.map((appointment) {
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 8.0),
+                      color: Colors.transparent, // Set background to transparent
+                      elevation: 3,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31), width: 1), // Thin golden border
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Service: ${appointment['service']}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFA0522D), // Sienna color
+                              ),
+                            ),
+                            const SizedBox(height: 4.0),
+                            Text('Date: ${DateFormat('yyyy-MM-dd').format(appointment['date'])}'),
+                            const SizedBox(height: 4.0),
+                            Text('Time: ${appointment['time'].format(context)}'),
+                            const SizedBox(height: 8.0),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    _showRescheduleDialog(
+                                      appointment['id'],
+                                      appointment['date'],
+                                      appointment['time'],
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    side: const BorderSide(color: Color.fromARGB(179, 181, 81, 31)), // Thin golden border
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                  child: const Text('Reschedule'),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(appointment['id']);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ],
+              ),
             ),
-    );
-  }
+          ),
+  );
+}
 }
